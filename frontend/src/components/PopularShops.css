@@ -1,0 +1,170 @@
+
+.shops {
+  padding: 80px 50px;
+  background: #fbf4e8;
+}
+
+.shops-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.shops-heading {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.shops-label {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: #c46f00;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.shops h2 {
+  margin: 0 0 12px;
+  font-size: 34px;
+  color: #111827;
+}
+
+.shops-description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.shops-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.shop-card {
+  overflow: hidden;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.shop-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.shop-image-wrapper {
+  position: relative;
+  height: 190px;
+  overflow: hidden;
+}
+
+.shop-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.shop-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(135deg, var(--sun, #e8890c), var(--sun-dark, #c46f00));
+  color: white;
+  font-family: var(--font-display, serif);
+  font-size: 56px;
+  font-weight: 700;
+}
+
+.shop-category {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: white;
+  color: #e8890c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.shop-info {
+  padding: 22px;
+}
+
+.shop-info h3 {
+  margin: 0 0 10px;
+  font-size: 21px;
+  color: #111827;
+}
+
+.shop-city,
+.shop-products-count {
+  margin: 7px 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.shop-button {
+  display: block;
+  margin-top: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #e8890c;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.shop-button:hover {
+  background: #c46f00;
+}
+
+.shops-more {
+  margin-top: 35px;
+  text-align: center;
+}
+
+.all-shops-button {
+  display: inline-block;
+  padding: 12px 22px;
+  border: 1px solid #e8890c;
+  border-radius: 8px;
+  color: #e8890c;
+  background: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.all-shops-button:hover {
+  background: #e8890c;
+  color: white;
+}
+
+@media (max-width: 850px) {
+  .shops {
+    padding: 60px 25px;
+  }
+
+  .shops-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .shops {
+    padding: 50px 18px;
+  }
+
+  .shops h2 {
+    font-size: 28px;
+  }
+}
+
+

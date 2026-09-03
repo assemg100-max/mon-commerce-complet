@@ -1,0 +1,369 @@
+/* =========================================================
+   PROFIL COMMERÇANT
+========================================================= */
+
+.merchant-profile-page {
+  min-height: 100vh;
+  padding: 50px 20px 70px;
+  background: #fbf4e8;
+}
+
+.merchant-profile-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.merchant-profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.merchant-profile-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #e8890c;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.merchant-profile-header h1 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 38px;
+  line-height: 1.2;
+}
+
+.merchant-profile-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.merchant-profile-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: white;
+  color: #111827;
+  text-decoration: none;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+
+.merchant-profile-back:hover {
+  background: #f3f4f6;
+}
+
+/* =========================================================
+   CARTE PROFIL
+========================================================= */
+
+.merchant-profile-card {
+  padding: 30px;
+  margin-bottom: 25px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.merchant-profile-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  padding-bottom: 25px;
+  margin-bottom: 25px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.merchant-profile-logo {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #e8890c;
+  color: white;
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.merchant-profile-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.merchant-profile-logo-info h2 {
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 25px;
+}
+
+.merchant-profile-logo-info p {
+  margin: 0;
+  color: #6b7280;
+}
+
+/* =========================================================
+   FORMULAIRE
+========================================================= */
+
+.merchant-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.merchant-profile-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.merchant-profile-form-group label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.merchant-profile-form-group input,
+.merchant-profile-form-group select,
+.merchant-profile-form-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  background: white;
+  color: #111827;
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.merchant-profile-form-group input:focus,
+.merchant-profile-form-group select:focus,
+.merchant-profile-form-group textarea:focus {
+  border-color: #e8890c;
+  box-shadow: 0 0 0 3px rgba(0, 143, 57, 0.1);
+}
+
+.merchant-profile-form-group textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.merchant-profile-form-group small {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* =========================================================
+   DEUX COLONNES
+========================================================= */
+
+.merchant-profile-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.merchant-profile-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 5px;
+}
+
+.merchant-profile-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  background: white;
+  color: #374151;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.merchant-profile-cancel:hover {
+  background: #f3f4f6;
+}
+
+.merchant-profile-save {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 9px;
+  background: #e8890c;
+  color: white;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.merchant-profile-save:hover {
+  background: #c46f00;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   INFORMATIONS DU COMPTE
+========================================================= */
+
+.merchant-profile-account {
+  padding: 25px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+.merchant-profile-account h2 {
+  margin: 0 0 20px;
+  color: #111827;
+  font-size: 22px;
+}
+
+.merchant-profile-account-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.merchant-profile-account-item {
+  padding: 16px;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.merchant-profile-account-item span {
+  display: block;
+  margin-bottom: 7px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.merchant-profile-account-item strong {
+  display: block;
+  color: #111827;
+  font-size: 15px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 750px) {
+  .merchant-profile-page {
+    padding: 30px 15px 50px;
+  }
+
+  .merchant-profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .merchant-profile-header h1 {
+    font-size: 30px;
+  }
+
+  .merchant-profile-back {
+    width: 100%;
+  }
+
+  .merchant-profile-card {
+    padding: 22px;
+  }
+
+  .merchant-profile-logo-section {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .merchant-profile-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .merchant-profile-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .merchant-profile-cancel,
+  .merchant-profile-save {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .merchant-profile-account-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .merchant-profile-header h1 {
+    font-size: 26px;
+  }
+
+  .merchant-profile-card,
+  .merchant-profile-account {
+    padding: 18px;
+  }
+
+  .merchant-profile-logo {
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+  }
+}
+.merchant-profile-theme-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.merchant-profile-theme-picker input[type="color"] {
+  width: 46px;
+  height: 40px;
+  padding: 2px;
+  border: 1px solid var(--border, #e8ddc9);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+}
+
+.merchant-profile-theme-picker span {
+  font-weight: 600;
+  color: var(--ink-soft, #4a5468);
+}

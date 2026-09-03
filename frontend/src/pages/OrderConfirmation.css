@@ -1,0 +1,263 @@
+.confirmation-page {
+min-height: 100vh;
+background: #fbf4e8;
+padding: 60px 20px;
+}
+
+.confirmation-container {
+max-width: 850px;
+margin: 0 auto;
+}
+
+.confirmation-success {
+background: white;
+border: 1px solid #e5e7eb;
+border-radius: 18px;
+padding: 45px 30px;
+text-align: center;
+margin-bottom: 25px;
+}
+
+.confirmation-icon {
+width: 70px;
+height: 70px;
+margin: 0 auto 20px;
+border-radius: 50%;
+background: #e8890c;
+color: white;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 22px;
+font-weight: 800;
+}
+
+.confirmation-label {
+display: inline-block;
+color: #e8890c;
+font-size: 13px;
+font-weight: 800;
+letter-spacing: 2px;
+margin-bottom: 10px;
+}
+
+.confirmation-success h1 {
+margin: 0 0 12px;
+color: #111827;
+font-size: 32px;
+}
+
+.confirmation-success p {
+margin: 0;
+color: #6b7280;
+}
+
+.order-number {
+max-width: 400px;
+margin: 25px auto 0;
+padding: 16px;
+background: #fbf4e8;
+border: 1px solid #dcefe3;
+border-radius: 10px;
+}
+
+.order-number span {
+display: block;
+color: #6b7280;
+font-size: 13px;
+margin-bottom: 6px;
+}
+
+.order-number strong {
+color: #e8890c;
+font-size: 20px;
+}
+
+.confirmation-card {
+background: white;
+border: 1px solid #e5e7eb;
+border-radius: 18px;
+padding: 30px;
+}
+
+.confirmation-card > h2 {
+margin: 0 0 25px;
+font-size: 24px;
+color: #111827;
+}
+
+.confirmation-customer {
+padding-bottom: 25px;
+border-bottom: 1px solid #e5e7eb;
+}
+
+.confirmation-customer h3,
+.confirmation-products h3 {
+margin: 0 0 15px;
+font-size: 18px;
+color: #111827;
+}
+
+.confirmation-customer p {
+margin: 8px 0;
+color: #6b7280;
+line-height: 1.5;
+}
+
+.confirmation-customer strong {
+color: #374151;
+}
+
+.confirmation-products {
+padding: 25px 0;
+border-bottom: 1px solid #e5e7eb;
+}
+
+.confirmation-product {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 20px;
+padding: 15px 0;
+border-bottom: 1px solid #f0f0f0;
+}
+
+.confirmation-product:last-child {
+border-bottom: none;
+}
+
+.confirmation-product > div {
+display: flex;
+flex-direction: column;
+gap: 5px;
+}
+
+.confirmation-product strong {
+color: #111827;
+}
+
+.confirmation-product span {
+color: #6b7280;
+font-size: 14px;
+}
+
+.confirmation-total {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 22px 0;
+font-size: 18px;
+}
+
+.confirmation-total strong {
+color: #e8890c;
+font-size: 22px;
+}
+
+.confirmation-status {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 15px 18px;
+background: #fbf4e8;
+border-radius: 10px;
+}
+
+.confirmation-status span {
+color: #6b7280;
+}
+
+.confirmation-status strong {
+color: #e8890c;
+}
+
+.confirmation-actions {
+display: flex;
+justify-content: center;
+gap: 15px;
+margin-top: 25px;
+}
+
+.confirmation-button,
+.confirmation-home-button {
+display: inline-block;
+padding: 13px 20px;
+border-radius: 9px;
+text-decoration: none;
+font-weight: 700;
+text-align: center;
+}
+
+.confirmation-button {
+background: #e8890c;
+color: white;
+}
+
+.confirmation-button:hover {
+background: #c46f00;
+}
+
+.confirmation-home-button {
+background: white;
+color: #e8890c;
+border: 1px solid #e8890c;
+}
+
+.confirmation-home-button:hover {
+background: #fbf4e8;
+}
+
+.confirmation-not-found {
+background: white;
+border: 1px solid #e5e7eb;
+border-radius: 18px;
+padding: 50px 25px;
+text-align: center;
+}
+
+.confirmation-not-found h1 {
+margin: 0 0 10px;
+color: #111827;
+}
+
+.confirmation-not-found p {
+color: #6b7280;
+margin-bottom: 25px;
+}
+
+@media (max-width: 600px) {
+.confirmation-page {
+padding: 35px 15px;
+}
+
+.confirmation-success {
+padding: 35px 20px;
+}
+
+.confirmation-success h1 {
+font-size: 26px;
+}
+
+.confirmation-card {
+padding: 22px 18px;
+}
+
+.confirmation-product {
+align-items: flex-start;
+flex-direction: column;
+}
+
+.confirmation-product > strong {
+align-self: flex-end;
+}
+
+.confirmation-actions {
+flex-direction: column;
+}
+
+.confirmation-button,
+.confirmation-home-button {
+width: 100%;
+box-sizing: border-box;
+}
+}

@@ -1,0 +1,170 @@
+.register-page {
+  min-height: 100vh;
+  padding: 60px 0 90px;
+  background: #f7f8fa;
+}
+
+.register-container {
+  width: min(500px, 92%);
+  margin: 0 auto;
+}
+
+.register-card {
+  padding: 40px;
+  background: white;
+  border: 1px solid #e7e9ee;
+  border-radius: 22px;
+  box-shadow: 0 12px 35px rgba(16, 24, 40, 0.07);
+}
+
+.register-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 65px;
+  height: 65px;
+  margin: 0 auto 20px;
+  border-radius: 18px;
+  background: #f0fdfa;
+  font-size: 32px;
+}
+
+.register-card h1 {
+  margin: 0 0 8px;
+  color: #17202a;
+  text-align: center;
+  font-size: 32px;
+}
+
+.register-description {
+  margin: 0 0 30px;
+  color: #667085;
+  text-align: center;
+}
+
+.register-error {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b42318;
+  font-size: 14px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.register-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.register-group > label {
+  color: #344054;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.register-group input[type="text"],
+.register-group input[type="email"],
+.register-group input[type="password"] {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  outline: none;
+  font-size: 15px;
+}
+
+.register-group input:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
+.account-types {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.account-type {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.account-type:hover {
+  border-color: #0f766e;
+  background: #f0fdfa;
+}
+
+.account-type input {
+  margin-top: 3px;
+}
+
+.account-type span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.account-type strong {
+  color: #17202a;
+}
+
+.account-type small {
+  color: #667085;
+  line-height: 1.4;
+}
+
+.register-submit {
+  padding: 14px;
+  border: none;
+  border-radius: 11px;
+  background: #0f766e;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.register-submit:hover {
+  background: #115e59;
+}
+
+.register-login {
+  margin: 25px 0 0;
+  color: #667085;
+  font-size: 14px;
+  text-align: center;
+}
+
+.register-login a {
+  color: #0f766e;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.register-login a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 550px) {
+  .register-card {
+    padding: 28px 22px;
+  }
+
+  .account-types {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,685 @@
+/* =========================================================
+   HEADER — MON COMMERCE SÉNÉGAL
+========================================================= */
+
+.site-header {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  background: #ffffff;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================================================
+   CONTENEUR PRINCIPAL
+========================================================= */
+
+.header-container {
+  width: 100%;
+  max-width: 1250px;
+
+  min-height: 72px;
+
+  margin: 0 auto;
+
+  padding: 0 25px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+
+  gap: 25px;
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.header-logo {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 10px;
+
+  color: #111827;
+
+  text-decoration: none;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  transition: 0.2s ease;
+}
+
+.header-logo:hover {
+  color: #e8890c;
+}
+
+.header-logo-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 11px;
+
+  background: #fdf1e2;
+
+  font-size: 22px;
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.header-nav {
+  display: flex;
+  align-items: center;
+
+  gap: 4px;
+
+  margin-left: 15px;
+}
+
+.header-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 13px;
+
+  border-radius: 8px;
+
+  color: #4b5563;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: 0.2s ease;
+}
+
+.header-nav a:hover {
+  background: #fdf1e2;
+
+  color: #e8890c;
+}
+
+.header-nav a.active {
+  background: #fdf1e2;
+
+  color: #e8890c;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  margin-left: auto;
+}
+
+
+/* =========================================================
+   ESPACE COMMERÇANT
+========================================================= */
+
+.header-merchant-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 40px;
+
+  padding: 9px 14px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #f0c48a;
+
+  border-radius: 9px;
+
+  background: #fdf1e2;
+
+  color: #e8890c;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  transition: 0.2s ease;
+}
+
+.header-merchant-button:hover {
+  background: #fbe3c2;
+
+  border-color: #e8890c;
+
+  transform: translateY(-1px);
+}
+
+.header-merchant-button.active {
+  background: #e8890c;
+
+  border-color: #e8890c;
+
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   PANIER
+========================================================= */
+
+.header-cart {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 40px;
+
+  padding: 8px 13px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #374151;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: 0.2s ease;
+}
+
+.header-cart:hover {
+  background: #fdf6ec;
+
+  border-color: #f0c48a;
+
+  color: #e8890c;
+}
+
+
+/* =========================================================
+   BADGE PANIER
+========================================================= */
+
+.cart-badge {
+  position: absolute;
+
+  top: -7px;
+  right: -7px;
+
+  min-width: 21px;
+  height: 21px;
+
+  padding: 0 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  border: 2px solid #ffffff;
+
+  border-radius: 50%;
+
+  background: #dc2626;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  line-height: 1;
+}
+
+
+/* =========================================================
+   UTILISATEUR CONNECTÉ
+========================================================= */
+
+.header-user {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+}
+
+
+/* =========================================================
+   BOUTON / LIEN UTILISATEUR
+========================================================= */
+
+.header-user-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 40px;
+
+  padding: 8px 11px;
+
+  box-sizing: border-box;
+
+  border-radius: 9px;
+
+  background: #f9fafb;
+
+  color: #374151;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  transition: 0.2s ease;
+}
+
+.header-user-button:hover {
+  background: #fdf1e2;
+
+  color: #e8890c;
+}
+
+
+/* =========================================================
+   DÉCONNEXION
+========================================================= */
+
+.header-logout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 38px;
+
+  padding: 8px 12px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #4b5563;
+
+  font-family: inherit;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.header-logout-button:hover {
+  border-color: #fecaca;
+
+  background: #fef2f2;
+
+  color: #dc2626;
+}
+
+
+/* =========================================================
+   CONNEXION
+========================================================= */
+
+.header-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 40px;
+
+  padding: 8px 13px;
+
+  box-sizing: border-box;
+
+  border-radius: 9px;
+
+  color: #374151;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  transition: 0.2s ease;
+}
+
+.header-login:hover {
+  background: #fdf1e2;
+
+  color: #e8890c;
+}
+
+
+/* =========================================================
+   CRÉER UNE BOUTIQUE
+========================================================= */
+
+.header-register {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 40px;
+
+  padding: 9px 15px;
+
+  box-sizing: border-box;
+
+  border-radius: 9px;
+
+  background: #e8890c;
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  transition: 0.2s ease;
+}
+
+.header-register:hover {
+  background: #c46f00;
+
+  color: #ffffff;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   TABLETTE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .header-container {
+    gap: 12px;
+
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .header-logo {
+    font-size: 16px;
+  }
+
+  .header-logo-icon {
+    width: 35px;
+    height: 35px;
+
+    font-size: 19px;
+  }
+
+  .header-nav {
+    margin-left: 5px;
+  }
+
+  .header-nav a {
+    padding: 9px 9px;
+
+    font-size: 13px;
+  }
+
+  .header-merchant-button {
+    padding: 8px 10px;
+
+    font-size: 12px;
+  }
+
+  .header-cart {
+    padding: 8px 10px;
+  }
+
+  .header-user-button {
+    padding: 8px 9px;
+
+    font-size: 12px;
+  }
+
+  .header-logout-button {
+    padding: 7px 9px;
+
+    font-size: 11px;
+  }
+}
+
+
+/* =========================================================
+   TABLETTE PETITE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .header-container {
+    flex-wrap: wrap;
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .header-logo {
+    margin-right: auto;
+  }
+
+  .header-actions {
+    margin-left: 0;
+  }
+
+  .header-nav {
+    order: 3;
+
+    width: 100%;
+
+    margin-left: 0;
+
+    justify-content: center;
+
+    padding-top: 7px;
+
+    border-top: 1px solid #f3f4f6;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .site-header {
+    position: relative;
+  }
+
+  .header-container {
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 10px;
+
+    padding: 12px 15px;
+  }
+
+  .header-logo {
+    width: 100%;
+
+    justify-content: center;
+
+    margin: 0;
+  }
+
+  .header-nav {
+    order: 0;
+
+    width: 100%;
+
+    justify-content: center;
+
+    padding: 0;
+
+    border: none;
+
+    gap: 3px;
+  }
+
+  .header-nav a {
+    flex: 1;
+
+    padding: 9px 5px;
+
+    font-size: 13px;
+  }
+
+  .header-actions {
+    width: 100%;
+
+    justify-content: center;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    margin: 0;
+  }
+
+  .header-merchant-button {
+    flex: 1;
+
+    min-width: 180px;
+  }
+
+  .header-cart {
+    flex: 1;
+
+    min-width: 90px;
+  }
+
+  .header-user {
+    flex: 1;
+
+    min-width: 180px;
+
+    justify-content: center;
+  }
+
+  .header-user-button {
+    flex: 1;
+  }
+
+  .header-login,
+  .header-register {
+    flex: 1;
+  }
+}
+
+
+/* =========================================================
+   PETIT MOBILE
+========================================================= */
+
+@media (max-width: 450px) {
+
+  .header-container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .header-logo {
+    font-size: 15px;
+  }
+
+  .header-logo-icon {
+    width: 32px;
+    height: 32px;
+
+    font-size: 17px;
+  }
+
+  .header-nav a {
+    font-size: 12px;
+
+    padding: 8px 3px;
+  }
+
+  .header-merchant-button {
+    width: 100%;
+
+    min-width: 100%;
+
+    flex: none;
+  }
+
+  .header-cart {
+    min-width: 45%;
+  }
+
+  .header-user {
+    width: 100%;
+
+    min-width: 100%;
+
+    flex: none;
+  }
+
+  .header-user-button {
+    min-width: 0;
+  }
+
+  .header-login,
+  .header-register {
+    min-width: 45%;
+  }
+}

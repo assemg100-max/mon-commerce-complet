@@ -1,0 +1,52 @@
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fbf4e8;
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+}
+
+.site-footer {
+  margin-top: 60px;
+  background: #111827;
+  color: white;
+}
+
+.site-footer-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 35px 20px;
+  text-align: center;
+}
+
+.site-footer-container strong {
+  display: block;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.site-footer-container p {
+  margin: 0 auto 15px;
+  color: #d1d5db;
+  max-width: 600px;
+}
+
+.site-footer-container span {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    margin-top: 35px;
+  }
+
+  .site-footer-container {
+    padding: 30px 15px;
+  }
+}

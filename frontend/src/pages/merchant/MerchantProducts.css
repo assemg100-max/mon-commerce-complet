@@ -1,0 +1,236 @@
+.merchant-products-page {
+min-height: 100vh;
+padding: 40px 20px;
+background: #f8fafc;
+}
+
+.merchant-products-container {
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.merchant-products-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 30px;
+margin-bottom: 35px;
+}
+
+.merchant-products-label {
+display: block;
+margin-bottom: 8px;
+font-size: 13px;
+font-weight: 700;
+letter-spacing: 1px;
+color: #16a34a;
+}
+
+.merchant-products-header h1 {
+margin: 0 0 10px;
+font-size: 38px;
+color: #111827;
+}
+
+.merchant-products-header p {
+margin: 0;
+color: #6b7280;
+font-size: 16px;
+}
+
+.merchant-products-back-button {
+display: inline-block;
+padding: 12px 18px;
+border-radius: 10px;
+background: white;
+color: #111827;
+text-decoration: none;
+font-weight: 600;
+border: 1px solid #e5e7eb;
+}
+
+.merchant-products-back-button {
+background: #f3f4f6;
+}
+
+.merchant-products-count {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 20px;
+color: #6b7280;
+}
+
+.merchant-products-count strong {
+font-size: 22px;
+color: #111827;
+}
+
+.merchant-products-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 24px;
+}
+
+.merchant-product-card {
+overflow: hidden;
+background: white;
+border: 1px solid #e5e7eb;
+border-radius: 16px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.merchant-product-image {
+width: 100%;
+height: 220px;
+overflow: hidden;
+display: flex;
+align-items: center;
+justify-content: center;
+background: #f3f4f6;
+font-size: 50px;
+}
+
+.merchant-product-image img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.merchant-product-content {
+padding: 20px;
+}
+
+.merchant-product-category {
+display: inline-block;
+margin-bottom: 8px;
+font-size: 13px;
+font-weight: 700;
+color: #16a34a;
+}
+
+.merchant-product-content h2 {
+margin: 0 0 10px;
+font-size: 21px;
+color: #111827;
+}
+
+.merchant-product-content p {
+min-height: 45px;
+margin: 0 0 15px;
+color: #6b7280;
+line-height: 1.5;
+}
+
+.merchant-product-price {
+display: block;
+margin-bottom: 15px;
+font-size: 20px;
+color: #111827;
+}
+
+.merchant-product-stock {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 12px;
+margin-bottom: 18px;
+border-radius: 10px;
+background: #f8fafc;
+}
+
+.merchant-product-stock span {
+color: #6b7280;
+}
+
+.merchant-product-stock strong {
+color: #111827;
+}
+
+.merchant-product-actions {
+display: flex;
+gap: 10px;
+}
+
+.merchant-product-edit,
+.merchant-product-delete {
+flex: 1;
+padding: 11px 10px;
+border-radius: 9px;
+text-align: center;
+font-weight: 600;
+cursor: pointer;
+font-size: 14px;
+}
+
+.merchant-product-edit {
+background: #111827;
+color: white;
+text-decoration: none;
+}
+
+.merchant-product-edit {
+background: #374151;
+}
+
+.merchant-product-delete {
+border: none;
+background: #fee2e2;
+color: #dc2626;
+}
+
+.merchant-product-delete {
+background: #fecaca;
+}
+
+.merchant-products-empty {
+padding: 70px 20px;
+text-align: center;
+background: white;
+border: 1px solid #e5e7eb;
+border-radius: 16px;
+}
+
+.merchant-products-empty-icon {
+margin-bottom: 15px;
+font-size: 55px;
+}
+
+.merchant-products-empty h2 {
+margin-bottom: 10px;
+color: #111827;
+}
+
+.merchant-products-empty p {
+margin: 0;
+color: #6b7280;
+}
+
+@media (max-width: 900px) {
+.merchant-products-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+
+@media (max-width: 650px) {
+.merchant-products-page {
+padding: 25px 15px;
+}
+
+.merchant-products-header {
+flex-direction: column;
+align-items: flex-start;
+}
+
+.merchant-products-header h1 {
+font-size: 30px;
+}
+
+.merchant-products-grid {
+grid-template-columns: 1fr;
+}
+
+.merchant-product-actions {
+flex-direction: column;
+}
+}

@@ -1,0 +1,89 @@
+:root {
+  /* =========================================================
+     PALETTE — inspirée du wax indigo, du marché et de la
+     lumière de Dakar (pas le vert drapeau générique).
+  ========================================================= */
+
+  --ink: #1a2333;
+  --ink-soft: #4a5468;
+
+  --sun: #e8890c;
+  --sun-dark: #c46f00;
+  --sun-tint: #fdf1e2;
+  --sun-tint-strong: #fbe3c2;
+  --sun-border: #f0c48a;
+
+  --teal: #0e7c74;
+  --teal-dark: #0a5f59;
+  --teal-tint: #e6f4f2;
+
+  --clay: #c24914;
+
+  --sand: #fbf4e8;
+  --paper: #ffffff;
+
+  --border: #e8ddc9;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+
+  font-family: var(--font-body);
+
+  background: var(--sand);
+  color: var(--ink);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin-top: 0;
+}
+
+main {
+  width: 100%;
+}
+
+section {
+  width: 100%;
+}

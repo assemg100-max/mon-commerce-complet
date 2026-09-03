@@ -1,0 +1,134 @@
+.category-page {
+  min-height: 100vh;
+  background: var(--sand, #fbf4e8);
+  padding: 50px 0 80px;
+}
+
+.category-container {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+}
+
+.category-title {
+  margin-bottom: 24px;
+}
+
+.category-title h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+}
+
+.category-title p {
+  margin: 0;
+  color: var(--ink-soft, #4a5468);
+}
+
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  background: var(--paper, #ffffff);
+  border: 1px solid var(--border, #e8ddc9);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 32px;
+}
+
+.category-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.category-filter-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft, #4a5468);
+}
+
+.category-filter-group input,
+.category-filter-group select {
+  padding: 9px 12px;
+  border: 1px solid var(--border, #e8ddc9);
+  border-radius: 8px;
+  width: 140px;
+  font-family: var(--font-body, inherit);
+}
+
+.category-filters button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.category-filters button[type="submit"] {
+  border: none;
+  background: var(--sun, #e8890c);
+  color: white;
+}
+
+.category-filters button[type="submit"]:hover {
+  background: var(--sun-dark, #c46f00);
+}
+
+.category-filter-reset {
+  border: 1px solid var(--border, #e8ddc9);
+  background: transparent;
+  color: var(--ink-soft, #4a5468);
+}
+
+.category-empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--ink-soft, #4a5468);
+}
+
+.category-products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 22px;
+}
+
+.category-product-card {
+  display: block;
+  background: var(--paper, #ffffff);
+  border: 1px solid var(--border, #e8ddc9);
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: 0.2s ease;
+}
+
+.category-product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.category-product-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.category-product-info {
+  padding: 14px;
+}
+
+.category-product-info h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.category-product-rating {
+  display: block;
+  font-size: 13px;
+  color: var(--sun-dark, #c46f00);
+  margin-bottom: 6px;
+}
+
+.category-product-info strong {
+  color: var(--ink, #1a2333);
+}
