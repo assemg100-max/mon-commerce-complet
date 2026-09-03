@@ -242,6 +242,7 @@ export function searchProducts(filters) {
   if (filters.minPrice) params.set("minPrice", filters.minPrice);
   if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
   if (filters.minRating) params.set("minRating", filters.minRating);
+  if (filters.q) params.set("q", filters.q);
 
   const query = params.toString();
 

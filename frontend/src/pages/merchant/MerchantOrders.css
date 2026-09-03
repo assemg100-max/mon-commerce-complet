@@ -1,7 +1,7 @@
 .merchant-orders-page {
   min-height: 100vh;
   padding: 40px 20px;
-  background: #f5f7fb;
+  background: var(--sand, #fbf4e8);
 }
 
 .merchant-orders-container {

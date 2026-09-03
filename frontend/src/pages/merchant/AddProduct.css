@@ -46,7 +46,7 @@
 }
 
 .back-button:hover {
-  background: #f9fafb;
+  background: var(--sand, #fbf4e8);
 }
 
 .add-product-card {

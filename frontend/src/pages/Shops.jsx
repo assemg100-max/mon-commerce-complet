@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { getShops } from "../data/api";
+import { getShops, searchProducts } from "../data/api";
 
 import "./Shops.css";
 
@@ -9,6 +9,8 @@ function Shops() {
   const [searchParams] = useSearchParams();
 
   const [shops, setShops] = useState([]);
+  const [matchingProducts, setMatchingProducts] =
+    useState([]);
 
   const [search, setSearch] = useState(
     searchParams.get("q") || ""
@@ -76,6 +78,35 @@ function Shops() {
       );
     };
   }, []);
+
+  /*
+   * =========================================================
+   * RECHERCHE DE PRODUITS
+   * =========================================================
+   *
+   * En plus de filtrer les boutiques, on cherche aussi
+   * les produits qui correspondent au texte tapé, pour
+   * qu'une recherche comme "chaussures" renvoie un résultat
+   * même si aucune boutique ne s'appelle "chaussures".
+   */
+
+  useEffect(() => {
+    const query = search.trim();
+
+    if (!query) {
+      setMatchingProducts([]);
+      return;
+    }
+
+    searchProducts({ q: query })
+      .then(setMatchingProducts)
+      .catch(function (error) {
+        console.error(
+          "Erreur lors de la recherche de produits :",
+          error
+        );
+      });
+  }, [search]);
 
   /*
    * =========================================================
@@ -195,6 +226,51 @@ function Shops() {
           </div>
 
         </section>
+
+        {/* PRODUITS TROUVÉS */}
+
+        {search.trim() && matchingProducts.length > 0 && (
+
+          <div className="shops-matching-products">
+
+            <h2>
+              Produits qui correspondent à "{search.trim()}"
+            </h2>
+
+            <div className="shops-matching-products-grid">
+
+              {matchingProducts.map(function (product) {
+                const price = Number(product.price) || 0;
+
+                return (
+                  <Link
+                    to={"/produit/" + product.id}
+                    className="shops-matching-product-card"
+                    key={product.id}
+                  >
+
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                    />
+
+                    <div>
+                      <h3>{product.name}</h3>
+                      <strong>
+                        {price.toLocaleString("fr-FR")}{" "}
+                        F CFA
+                      </strong>
+                    </div>
+
+                  </Link>
+                );
+              })}
+
+            </div>
+
+          </div>
+
+        )}
 
         {/* RESULTATS */}
 

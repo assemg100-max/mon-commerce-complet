@@ -26,12 +26,12 @@
 .create-shop-header h1 {
   margin: 10px 0;
   font-size: 38px;
-  color: #111827;
+  color: var(--ink, #1a2333);
 }
 
 .create-shop-header p {
   margin: 0;
-  color: #6b7280;
+  color: var(--ink-soft, #4a5468);
   font-size: 16px;
 }
 
@@ -41,7 +41,7 @@
 
 .create-shop-card {
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border, #e8ddc9);
   border-radius: 16px;
   padding: 30px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
@@ -49,13 +49,13 @@
 
 .create-shop-card h2 {
   margin: 0 0 8px;
-  color: #111827;
+  color: var(--ink, #1a2333);
   font-size: 23px;
 }
 
 .create-shop-card-description {
   margin: 0 0 28px;
-  color: #6b7280;
+  color: var(--ink-soft, #4a5468);
 }
 
 .create-shop-form-group {
@@ -80,7 +80,7 @@
   border: 1px solid #d1d5db;
   border-radius: 9px;
   background: white;
-  color: #111827;
+  color: var(--ink, #1a2333);
   font-size: 15px;
   font-family: inherit;
 }
@@ -98,7 +98,7 @@
 }
 
 .create-shop-form-group small {
-  color: #6b7280;
+  color: var(--ink-soft, #4a5468);
   font-size: 13px;
 }
 

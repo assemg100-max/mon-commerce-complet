@@ -17,7 +17,7 @@ import { readDB, writeDB, getNextId } from "./db.js";
 
 const app = express();
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
@@ -318,6 +318,28 @@ app.get("/api/products", function (req, res) {
   if (req.query.category) {
     products = products.filter(function (product) {
       return product.category === req.query.category;
+    });
+  }
+
+  if (req.query.q) {
+    const search = String(req.query.q)
+      .trim()
+      .toLowerCase();
+
+    products = products.filter(function (product) {
+      const name = (product.name || "").toLowerCase();
+      const description = (
+        product.description || ""
+      ).toLowerCase();
+      const category = (
+        product.category || ""
+      ).toLowerCase();
+
+      return (
+        name.includes(search) ||
+        description.includes(search) ||
+        category.includes(search)
+      );
     });
   }
 

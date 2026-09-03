@@ -37,14 +37,14 @@
 
 .merchant-profile-header h1 {
   margin: 0 0 8px;
-  color: #111827;
+  color: var(--ink, #1a2333);
   font-size: 38px;
   line-height: 1.2;
 }
 
 .merchant-profile-header p {
   margin: 0;
-  color: #6b7280;
+  color: var(--ink-soft, #4a5468);
   font-size: 16px;
 }
 
@@ -56,7 +56,7 @@
   border: 1px solid #d1d5db;
   border-radius: 10px;
   background: white;
-  color: #111827;
+  color: var(--ink, #1a2333);
   text-decoration: none;
   font-weight: 700;
   transition: 0.2s ease;
@@ -74,7 +74,7 @@
   padding: 30px;
   margin-bottom: 25px;
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border, #e8ddc9);
   border-radius: 16px;
   box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
 }
@@ -115,13 +115,13 @@
 
 .merchant-profile-logo-info h2 {
   margin: 0 0 6px;
-  color: #111827;
+  color: var(--ink, #1a2333);
   font-size: 25px;
 }
 
 .merchant-profile-logo-info p {
   margin: 0;
-  color: #6b7280;
+  color: var(--ink-soft, #4a5468);
 }
 
 /* =========================================================
@@ -155,7 +155,7 @@
   border: 1px solid #d1d5db;
   border-radius: 9px;
   background: white;
-  color: #111827;
+  color: var(--ink, #1a2333);
   font-family: inherit;
   font-size: 15px;
   outline: none;
@@ -175,7 +175,7 @@
 }
 
 .merchant-profile-form-group small {
-  color: #6b7280;
+  color: var(--ink-soft, #4a5468);
   font-size: 12px;
 }
 
@@ -243,14 +243,14 @@
 .merchant-profile-account {
   padding: 25px;
   background: white;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border, #e8ddc9);
   border-radius: 16px;
   box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
 }
 
 .merchant-profile-account h2 {
   margin: 0 0 20px;
-  color: #111827;
+  color: var(--ink, #1a2333);
   font-size: 22px;
 }
 
@@ -263,19 +263,19 @@
 .merchant-profile-account-item {
   padding: 16px;
   border-radius: 10px;
-  background: #f9fafb;
+  background: var(--sand, #fbf4e8);
 }
 
 .merchant-profile-account-item span {
   display: block;
   margin-bottom: 7px;
-  color: #6b7280;
+  color: var(--ink-soft, #4a5468);
   font-size: 13px;
 }
 
 .merchant-profile-account-item strong {
   display: block;
-  color: #111827;
+  color: var(--ink, #1a2333);
   font-size: 15px;
 }
 

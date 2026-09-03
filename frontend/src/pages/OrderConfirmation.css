@@ -11,7 +11,7 @@ margin: 0 auto;
 
 .confirmation-success {
 background: white;
-border: 1px solid #e5e7eb;
+border: 1px solid var(--border, #e8ddc9);
 border-radius: 18px;
 padding: 45px 30px;
 text-align: center;
@@ -43,13 +43,13 @@ margin-bottom: 10px;
 
 .confirmation-success h1 {
 margin: 0 0 12px;
-color: #111827;
+color: var(--ink, #1a2333);
 font-size: 32px;
 }
 
 .confirmation-success p {
 margin: 0;
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 }
 
 .order-number {
@@ -63,7 +63,7 @@ border-radius: 10px;
 
 .order-number span {
 display: block;
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 font-size: 13px;
 margin-bottom: 6px;
 }
@@ -75,7 +75,7 @@ font-size: 20px;
 
 .confirmation-card {
 background: white;
-border: 1px solid #e5e7eb;
+border: 1px solid var(--border, #e8ddc9);
 border-radius: 18px;
 padding: 30px;
 }
@@ -83,7 +83,7 @@ padding: 30px;
 .confirmation-card > h2 {
 margin: 0 0 25px;
 font-size: 24px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .confirmation-customer {
@@ -95,12 +95,12 @@ border-bottom: 1px solid #e5e7eb;
 .confirmation-products h3 {
 margin: 0 0 15px;
 font-size: 18px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .confirmation-customer p {
 margin: 8px 0;
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 line-height: 1.5;
 }
 
@@ -133,11 +133,11 @@ gap: 5px;
 }
 
 .confirmation-product strong {
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .confirmation-product span {
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 font-size: 14px;
 }
 
@@ -164,7 +164,7 @@ border-radius: 10px;
 }
 
 .confirmation-status span {
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 }
 
 .confirmation-status strong {
@@ -209,7 +209,7 @@ background: #fbf4e8;
 
 .confirmation-not-found {
 background: white;
-border: 1px solid #e5e7eb;
+border: 1px solid var(--border, #e8ddc9);
 border-radius: 18px;
 padding: 50px 25px;
 text-align: center;
@@ -217,11 +217,11 @@ text-align: center;
 
 .confirmation-not-found h1 {
 margin: 0 0 10px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .confirmation-not-found p {
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 margin-bottom: 25px;
 }
 

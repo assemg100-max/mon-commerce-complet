@@ -25,12 +25,12 @@
 .shops h2 {
   margin: 0 0 12px;
   font-size: 34px;
-  color: #111827;
+  color: var(--ink, #1a2333);
 }
 
 .shops-description {
   margin: 0;
-  color: #6b7280;
+  color: var(--ink-soft, #4a5468);
   font-size: 16px;
 }
 
@@ -44,7 +44,7 @@
   overflow: hidden;
   background: white;
   border-radius: 16px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border, #e8ddc9);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -99,13 +99,13 @@
 .shop-info h3 {
   margin: 0 0 10px;
   font-size: 21px;
-  color: #111827;
+  color: var(--ink, #1a2333);
 }
 
 .shop-city,
 .shop-products-count {
   margin: 7px 0;
-  color: #6b7280;
+  color: var(--ink-soft, #4a5468);
   font-size: 14px;
 }
 

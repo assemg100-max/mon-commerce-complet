@@ -1,7 +1,7 @@
 .merchant-products-page {
 min-height: 100vh;
 padding: 40px 20px;
-background: #f8fafc;
+background: var(--sand, #fbf4e8);
 }
 
 .merchant-products-container {
@@ -29,12 +29,12 @@ color: #16a34a;
 .merchant-products-header h1 {
 margin: 0 0 10px;
 font-size: 38px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .merchant-products-header p {
 margin: 0;
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 font-size: 16px;
 }
 
@@ -43,10 +43,10 @@ display: inline-block;
 padding: 12px 18px;
 border-radius: 10px;
 background: white;
-color: #111827;
+color: var(--ink, #1a2333);
 text-decoration: none;
 font-weight: 600;
-border: 1px solid #e5e7eb;
+border: 1px solid var(--border, #e8ddc9);
 }
 
 .merchant-products-back-button {
@@ -58,12 +58,12 @@ display: flex;
 align-items: center;
 gap: 8px;
 margin-bottom: 20px;
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 }
 
 .merchant-products-count strong {
 font-size: 22px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .merchant-products-grid {
@@ -75,7 +75,7 @@ gap: 24px;
 .merchant-product-card {
 overflow: hidden;
 background: white;
-border: 1px solid #e5e7eb;
+border: 1px solid var(--border, #e8ddc9);
 border-radius: 16px;
 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
@@ -112,13 +112,13 @@ color: #16a34a;
 .merchant-product-content h2 {
 margin: 0 0 10px;
 font-size: 21px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .merchant-product-content p {
 min-height: 45px;
 margin: 0 0 15px;
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 line-height: 1.5;
 }
 
@@ -126,7 +126,7 @@ line-height: 1.5;
 display: block;
 margin-bottom: 15px;
 font-size: 20px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .merchant-product-stock {
@@ -136,15 +136,15 @@ align-items: center;
 padding: 12px;
 margin-bottom: 18px;
 border-radius: 10px;
-background: #f8fafc;
+background: var(--sand, #fbf4e8);
 }
 
 .merchant-product-stock span {
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 }
 
 .merchant-product-stock strong {
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .merchant-product-actions {
@@ -187,7 +187,7 @@ background: #fecaca;
 padding: 70px 20px;
 text-align: center;
 background: white;
-border: 1px solid #e5e7eb;
+border: 1px solid var(--border, #e8ddc9);
 border-radius: 16px;
 }
 
@@ -198,12 +198,12 @@ font-size: 55px;
 
 .merchant-products-empty h2 {
 margin-bottom: 10px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .merchant-products-empty p {
 margin: 0;
-color: #6b7280;
+color: var(--ink-soft, #4a5468);
 }
 
 @media (max-width: 900px) {

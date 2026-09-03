@@ -1,6 +1,6 @@
 .shop-page {
 min-height: 100vh;
-background: #f8fafc;
+background: var(--sand, #fbf4e8);
 }
 
 .shop-container {
@@ -85,7 +85,7 @@ margin-bottom: 30px;
 .shop-products-header h2 {
 margin: 0 0 6px;
 font-size: 30px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .shop-products-header p {
@@ -101,7 +101,7 @@ gap: 24px;
 
 .product-card {
 background: white;
-border: 1px solid #e5e7eb;
+border: 1px solid var(--border, #e8ddc9);
 border-radius: 18px;
 overflow: hidden;
 box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
@@ -134,7 +134,7 @@ padding: 20px;
 .product-content h3 {
 margin: 0 0 10px;
 font-size: 20px;
-color: #111827;
+color: var(--ink, #1a2333);
 }
 
 .product-description {
@@ -215,7 +215,7 @@ text-decoration: underline;
 
 .empty-products {
 background: white;
-border: 1px solid #e5e7eb;
+border: 1px solid var(--border, #e8ddc9);
 border-radius: 18px;
 padding: 45px;
 text-align: center;
@@ -223,7 +223,7 @@ color: #64748b;
 }
 
 .empty-products h1 {
-color: #111827;
+color: var(--ink, #1a2333);
 margin-top: 0;
 }
 
