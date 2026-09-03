@@ -9,7 +9,7 @@
  *
  * Adresse du serveur backend en local :
  */
-const API_URL = "http://localhost:4000/api";
+const API_URL = "https://mon-commerce-backend.onrender.com/api";
 
 
 /*
