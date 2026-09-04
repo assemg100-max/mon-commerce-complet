@@ -16,13 +16,40 @@ const API_URL = "https://mon-commerce-backend.onrender.com/api";
  * Fonction générique pour appeler l'API et gérer
  * les erreurs de façon centralisée.
  */
+const TOKEN_KEY = "mon-commerce-token";
+
+function getStoredToken() {
+  return localStorage.getItem(TOKEN_KEY) || null;
+}
+
+function storeToken(token) {
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
+}
+
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
 async function apiRequest(path, options = {}) {
   let response;
 
+  const token = getStoredToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+
+  if (token) {
+    headers.Authorization = "Bearer " + token;
+  }
+
   try {
     response = await fetch(API_URL + path, {
-      headers: { "Content-Type": "application/json" },
       ...options,
+      headers,
     });
   } catch (networkError) {
     throw new Error(
@@ -53,6 +80,7 @@ export function registerUser(userData) {
     method: "POST",
     body: JSON.stringify(userData),
   }).then(function (data) {
+    storeToken(data.token);
     return data.user;
   });
 }
@@ -62,6 +90,7 @@ export function loginUser(email, password) {
     method: "POST",
     body: JSON.stringify({ email, password }),
   }).then(function (data) {
+    storeToken(data.token);
     return data.user;
   });
 }
@@ -118,6 +147,7 @@ export function createShop(shopData) {
     method: "POST",
     body: JSON.stringify(shopData),
   }).then(function (data) {
+    storeToken(data.token);
     return data.shop;
   });
 }

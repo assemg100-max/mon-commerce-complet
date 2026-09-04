@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import { clearToken } from "../data/api";
+
 import "./Header.css";
 
 function Header() {
@@ -78,10 +80,12 @@ function Header() {
     }
   }
 
-  function handleLogout() {
+function handleLogout() {
     localStorage.removeItem(
       "mon-commerce-current-user"
     );
+
+    clearToken();
 
     setCurrentUser(null);
 

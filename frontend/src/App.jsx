@@ -19,6 +19,7 @@ import Account from "./pages/Account";
 import Favorites from "./pages/Favorites";
 
 import Admin from "./pages/Admin";
+import BecomeAdmin from "./pages/BecomeAdmin";
 
 import MerchantDashboard from "./pages/merchant/MerchantDashboard";
 import MerchantOrders from "./pages/merchant/MerchantOrders";
@@ -144,6 +145,11 @@ function App() {
           <Route
             path="/admin"
             element={<Admin />}
+          />
+
+          <Route
+            path="/devenir-admin"
+            element={<BecomeAdmin />}
           />
 
 

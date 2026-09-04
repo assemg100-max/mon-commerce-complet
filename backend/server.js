@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 import { readDB, writeDB, getNextId } from "./db.js";
 
@@ -18,6 +19,86 @@ import { readDB, writeDB, getNextId } from "./db.js";
 const app = express();
 
 const PORT = process.env.PORT || 4000;
+
+/*
+ * =========================================================
+ * SÉCURITÉ — CLÉ SECRÈTE POUR SIGNER LES JETONS (JWT)
+ * =========================================================
+ *
+ * Cette clé sert à signer et vérifier les jetons de
+ * connexion. Sur Render, définis une variable
+ * d'environnement JWT_SECRET avec une valeur longue et
+ * aléatoire (Settings > Environment sur Render).
+ *
+ * Une valeur par défaut est fournie pour que le site
+ * fonctionne quand même en local, mais elle ne doit
+ * JAMAIS être utilisée telle quelle en production.
+ */
+const JWT_SECRET =
+  process.env.JWT_SECRET ||
+  "changez-cette-cle-en-production-mon-commerce-senegal";
+
+if (!process.env.JWT_SECRET) {
+  console.warn(
+    "⚠️  JWT_SECRET n'est pas défini. Utilisation d'une clé par défaut, à changer en production (variable d'environnement sur Render)."
+  );
+}
+
+function createToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      shopId: user.shopId || null,
+    },
+    JWT_SECRET,
+    { expiresIn: "30d" }
+  );
+}
+
+/*
+ * Middleware : vérifie que la requête contient un jeton
+ * valide. Si oui, place les infos du compte dans req.user.
+ * Si non, bloque la requête avec une erreur 401.
+ */
+function requireAuth(req, res, next) {
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ")
+    ? header.slice(7)
+    : null;
+
+  if (!token) {
+    return res.status(401).json({
+      error: "Connexion requise pour cette action.",
+    });
+  }
+
+  try {
+    req.user = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      error: "Session invalide ou expirée, reconnecte-toi.",
+    });
+  }
+}
+
+/*
+ * Middleware : comme requireAuth, mais exige en plus
+ * que le compte ait le rôle "admin".
+ */
+function requireAdmin(req, res, next) {
+  requireAuth(req, res, function () {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({
+        error: "Accès réservé aux administrateurs.",
+      });
+    }
+
+    next();
+  });
+}
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
@@ -103,7 +184,9 @@ app.post("/api/auth/register", function (req, res) {
 
   const { password: _removed, ...safeUser } = newUser;
 
-  res.status(201).json({ user: safeUser });
+  const token = createToken(newUser);
+
+  res.status(201).json({ user: safeUser, token });
 });
 
 
@@ -144,7 +227,9 @@ app.post("/api/auth/login", function (req, res) {
 
   const { password: _removed, ...safeUser } = user;
 
-  res.json({ user: safeUser });
+  const token = createToken(user);
+
+  res.json({ user: safeUser, token });
 });
 
 
@@ -196,16 +281,9 @@ app.get("/api/shops/:id", function (req, res) {
 });
 
 
-app.post("/api/shops", function (req, res) {
-  const {
-    name,
-    city,
-    category,
-    description,
-    ownerId,
-    logo,
-    phone,
-  } = req.body;
+app.post("/api/shops", requireAuth, function (req, res) {
+  const { name, city, category, description, logo, phone } =
+    req.body;
 
   if (!name || !city || !category) {
     return res.status(400).json({
@@ -216,59 +294,105 @@ app.post("/api/shops", function (req, res) {
 
   const db = readDB();
 
+  /*
+   * SÉCURITÉ : on utilise l'id du compte connecté
+   * (issu du jeton), jamais une valeur envoyée par
+   * le client, pour éviter qu'on crée une boutique
+   * au nom de quelqu'un d'autre.
+   */
+  const ownerId = req.user.id;
+
   const newShop = {
     id: getNextId(db.shops),
     name,
     city,
     category,
     description: description || "",
-    ownerId: ownerId || null,
+    ownerId,
     logo: logo || null,
     phone: phone || "",
   };
 
   db.shops.push(newShop);
 
-  /*
-   * Si la boutique appartient à un commerçant enregistré,
-   * on relie son compte à cette boutique.
-   */
-  if (ownerId) {
-    db.users = db.users.map(function (user) {
-      if (Number(user.id) !== Number(ownerId)) {
-        return user;
-      }
+  db.users = db.users.map(function (user) {
+    if (Number(user.id) !== Number(ownerId)) {
+      return user;
+    }
 
-      return { ...user, shopId: newShop.id, role: "merchant" };
-    });
-  }
+    return { ...user, shopId: newShop.id, role: "merchant" };
+  });
 
   writeDB(db);
 
-  res.status(201).json({ shop: newShop });
+  /*
+   * Le rôle du compte vient de changer (client -> merchant),
+   * on renvoie un nouveau jeton à jour pour que le site
+   * n'ait pas besoin de se déconnecter/reconnecter.
+   */
+  const updatedUser = db.users.find(function (user) {
+    return Number(user.id) === Number(ownerId);
+  });
+
+  const token = createToken(updatedUser);
+
+  res.status(201).json({ shop: newShop, token });
 });
 
 
-app.put("/api/shops/:id", function (req, res) {
+function getShopOwnerCheck(req, res, db) {
+  const shop = db.shops.find(function (item) {
+    return Number(item.id) === Number(req.params.id);
+  });
+
+  if (!shop) {
+    res.status(404).json({ error: "Boutique introuvable." });
+    return null;
+  }
+
+  const isOwner =
+    shop.ownerId &&
+    Number(shop.ownerId) === Number(req.user.id);
+
+  if (!isOwner && req.user.role !== "admin") {
+    res.status(403).json({
+      error: "Cette boutique ne vous appartient pas.",
+    });
+    return null;
+  }
+
+  return shop;
+}
+
+
+app.put("/api/shops/:id", requireAuth, function (req, res) {
   const db = readDB();
+
+  const shop = getShopOwnerCheck(req, res, db);
+
+  if (!shop) {
+    return;
+  }
+
+  const forbiddenFields = ["id", "ownerId"];
+
+  const safeUpdates = { ...req.body };
+
+  forbiddenFields.forEach(function (field) {
+    delete safeUpdates[field];
+  });
 
   let updatedShop = null;
 
-  db.shops = db.shops.map(function (shop) {
-    if (Number(shop.id) !== Number(req.params.id)) {
-      return shop;
+  db.shops = db.shops.map(function (item) {
+    if (Number(item.id) !== Number(req.params.id)) {
+      return item;
     }
 
-    updatedShop = { ...shop, ...req.body, id: shop.id };
+    updatedShop = { ...item, ...safeUpdates, id: item.id };
 
     return updatedShop;
   });
-
-  if (!updatedShop) {
-    return res
-      .status(404)
-      .json({ error: "Boutique introuvable." });
-  }
 
   writeDB(db);
 
@@ -276,20 +400,18 @@ app.put("/api/shops/:id", function (req, res) {
 });
 
 
-app.delete("/api/shops/:id", function (req, res) {
+app.delete("/api/shops/:id", requireAuth, function (req, res) {
   const db = readDB();
 
-  const before = db.shops.length;
+  const shop = getShopOwnerCheck(req, res, db);
 
-  db.shops = db.shops.filter(function (shop) {
-    return Number(shop.id) !== Number(req.params.id);
-  });
-
-  if (db.shops.length === before) {
-    return res
-      .status(404)
-      .json({ error: "Boutique introuvable." });
+  if (!shop) {
+    return;
   }
+
+  db.shops = db.shops.filter(function (item) {
+    return Number(item.id) !== Number(req.params.id);
+  });
 
   writeDB(db);
 
@@ -443,7 +565,7 @@ app.get("/api/products/:id", function (req, res) {
 });
 
 
-app.post("/api/products", function (req, res) {
+app.post("/api/products", requireAuth, function (req, res) {
   const {
     name,
     price,
@@ -464,6 +586,27 @@ app.post("/api/products", function (req, res) {
 
   const db = readDB();
 
+  const shop = db.shops.find(function (item) {
+    return Number(item.id) === Number(shopId);
+  });
+
+  if (!shop) {
+    return res
+      .status(404)
+      .json({ error: "Boutique introuvable." });
+  }
+
+  const isOwner =
+    shop.ownerId &&
+    Number(shop.ownerId) === Number(req.user.id);
+
+  if (!isOwner && req.user.role !== "admin") {
+    return res.status(403).json({
+      error:
+        "Vous ne pouvez ajouter un produit que dans votre propre boutique.",
+    });
+  }
+
   const newProduct = {
     id: getNextId(db.products),
     name,
@@ -483,30 +626,64 @@ app.post("/api/products", function (req, res) {
 });
 
 
-app.put("/api/products/:id", function (req, res) {
+function getProductOwnerCheck(req, res, db) {
+  const product = db.products.find(function (item) {
+    return Number(item.id) === Number(req.params.id);
+  });
+
+  if (!product) {
+    res.status(404).json({ error: "Produit introuvable." });
+    return null;
+  }
+
+  const shop = db.shops.find(function (item) {
+    return Number(item.id) === Number(product.shopId);
+  });
+
+  const isOwner =
+    shop &&
+    shop.ownerId &&
+    Number(shop.ownerId) === Number(req.user.id);
+
+  if (!isOwner && req.user.role !== "admin") {
+    res.status(403).json({
+      error: "Ce produit ne vous appartient pas.",
+    });
+    return null;
+  }
+
+  return product;
+}
+
+
+app.put("/api/products/:id", requireAuth, function (req, res) {
   const db = readDB();
+
+  const product = getProductOwnerCheck(req, res, db);
+
+  if (!product) {
+    return;
+  }
+
+  const forbiddenFields = ["id", "shopId"];
+
+  const safeUpdates = { ...req.body };
+
+  forbiddenFields.forEach(function (field) {
+    delete safeUpdates[field];
+  });
 
   let updatedProduct = null;
 
-  db.products = db.products.map(function (product) {
-    if (Number(product.id) !== Number(req.params.id)) {
-      return product;
+  db.products = db.products.map(function (item) {
+    if (Number(item.id) !== Number(req.params.id)) {
+      return item;
     }
 
-    updatedProduct = {
-      ...product,
-      ...req.body,
-      id: product.id,
-    };
+    updatedProduct = { ...item, ...safeUpdates, id: item.id };
 
     return updatedProduct;
   });
-
-  if (!updatedProduct) {
-    return res
-      .status(404)
-      .json({ error: "Produit introuvable." });
-  }
 
   writeDB(db);
 
@@ -514,25 +691,27 @@ app.put("/api/products/:id", function (req, res) {
 });
 
 
-app.delete("/api/products/:id", function (req, res) {
-  const db = readDB();
+app.delete(
+  "/api/products/:id",
+  requireAuth,
+  function (req, res) {
+    const db = readDB();
 
-  const before = db.products.length;
+    const product = getProductOwnerCheck(req, res, db);
 
-  db.products = db.products.filter(function (product) {
-    return Number(product.id) !== Number(req.params.id);
-  });
+    if (!product) {
+      return;
+    }
 
-  if (db.products.length === before) {
-    return res
-      .status(404)
-      .json({ error: "Produit introuvable." });
+    db.products = db.products.filter(function (item) {
+      return Number(item.id) !== Number(req.params.id);
+    });
+
+    writeDB(db);
+
+    res.json({ success: true });
   }
-
-  writeDB(db);
-
-  res.json({ success: true });
-});
+);
 
 
 /* =========================================================
@@ -701,31 +880,76 @@ app.get("/api/orders/:orderNumber", function (req, res) {
 });
 
 
-app.put("/api/orders/:orderNumber", function (req, res) {
-  const db = readDB();
+app.put(
+  "/api/orders/:orderNumber",
+  requireAuth,
+  function (req, res) {
+    const db = readDB();
 
-  let updatedOrder = null;
+    const order = db.orders.find(function (item) {
+      return item.orderNumber === req.params.orderNumber;
+    });
 
-  db.orders = db.orders.map(function (order) {
-    if (order.orderNumber !== req.params.orderNumber) {
-      return order;
+    if (!order) {
+      return res
+        .status(404)
+        .json({ error: "Commande introuvable." });
     }
 
-    updatedOrder = { ...order, ...req.body };
+    /*
+     * Seul un commerçant concerné par au moins un des
+     * produits de la commande (ou un admin) peut la
+     * modifier.
+     */
+    const userShop = db.shops.find(function (shop) {
+      return (
+        shop.ownerId &&
+        Number(shop.ownerId) === Number(req.user.id)
+      );
+    });
 
-    return updatedOrder;
-  });
+    const isConcernedMerchant =
+      userShop &&
+      order.products.some(function (product) {
+        return (
+          Number(product.shopId) === Number(userShop.id)
+        );
+      });
 
-  if (!updatedOrder) {
-    return res
-      .status(404)
-      .json({ error: "Commande introuvable." });
+    if (!isConcernedMerchant && req.user.role !== "admin") {
+      return res.status(403).json({
+        error:
+          "Vous ne pouvez pas modifier cette commande.",
+      });
+    }
+
+    /*
+     * On ne permet de modifier que le statut, jamais le
+     * montant, les produits ou les infos client.
+     */
+    const allowedFields = ["status"];
+
+    const safeUpdates = {};
+
+    allowedFields.forEach(function (field) {
+      if (req.body[field] !== undefined) {
+        safeUpdates[field] = req.body[field];
+      }
+    });
+
+    const updatedOrder = { ...order, ...safeUpdates };
+
+    db.orders = db.orders.map(function (item) {
+      return item.orderNumber === req.params.orderNumber
+        ? updatedOrder
+        : item;
+    });
+
+    writeDB(db);
+
+    res.json({ order: updatedOrder });
   }
-
-  writeDB(db);
-
-  res.json({ order: updatedOrder });
-});
+);
 
 
 /* =========================================================
@@ -750,14 +974,16 @@ app.get("/api/reviews", function (req, res) {
 });
 
 
-app.post("/api/reviews", function (req, res) {
-  const {
-    productId,
-    customerEmail,
-    customerName,
-    rating,
-    comment,
-  } = req.body;
+app.post("/api/reviews", requireAuth, function (req, res) {
+  const { productId, customerName, rating, comment } =
+    req.body;
+
+  /*
+   * SÉCURITÉ : l'email vient du jeton de connexion,
+   * jamais du corps de la requête, pour empêcher de
+   * publier un avis au nom de quelqu'un d'autre.
+   */
+  const customerEmail = req.user.email;
 
   if (!productId || !rating) {
     return res.status(400).json({
@@ -866,8 +1092,9 @@ app.get("/api/favorites", function (req, res) {
 });
 
 
-app.post("/api/favorites", function (req, res) {
-  const { customerEmail, productId } = req.body;
+app.post("/api/favorites", requireAuth, function (req, res) {
+  const { productId } = req.body;
+  const customerEmail = req.user.email;
 
   if (!customerEmail || !productId) {
     return res.status(400).json({
@@ -902,8 +1129,9 @@ app.post("/api/favorites", function (req, res) {
 });
 
 
-app.delete("/api/favorites", function (req, res) {
-  const { customerEmail, productId } = req.body;
+app.delete("/api/favorites", requireAuth, function (req, res) {
+  const { productId } = req.body;
+  const customerEmail = req.user.email;
 
   if (!customerEmail || !productId) {
     return res.status(400).json({
@@ -932,7 +1160,62 @@ app.delete("/api/favorites", function (req, res) {
    ADMINISTRATION (PLATEFORME)
    ========================================================= */
 
-app.get("/api/admin/stats", function (req, res) {
+/*
+ * Route spéciale pour devenir administrateur sur un
+ * serveur en ligne (où on n'a pas accès au fichier
+ * db.json directement). Protégée par une clé secrète
+ * définie dans la variable d'environnement
+ * ADMIN_SETUP_KEY sur Render — sans cette clé, personne
+ * ne peut devenir admin.
+ */
+app.post("/api/admin/promote", requireAuth, function (req, res) {
+  const { setupKey } = req.body;
+
+  const expectedKey = process.env.ADMIN_SETUP_KEY;
+
+  if (!expectedKey) {
+    return res.status(403).json({
+      error:
+        "La promotion admin n'est pas configurée sur ce serveur (ADMIN_SETUP_KEY manquante).",
+    });
+  }
+
+  if (setupKey !== expectedKey) {
+    return res.status(403).json({
+      error: "Clé secrète incorrecte.",
+    });
+  }
+
+  const db = readDB();
+
+  let updatedUser = null;
+
+  db.users = db.users.map(function (user) {
+    if (Number(user.id) !== Number(req.user.id)) {
+      return user;
+    }
+
+    updatedUser = { ...user, role: "admin" };
+    return updatedUser;
+  });
+
+  if (!updatedUser) {
+    return res
+      .status(404)
+      .json({ error: "Compte introuvable." });
+  }
+
+  writeDB(db);
+
+  const { password: _removed, ...safeUser } = updatedUser;
+
+  const token = createToken(updatedUser);
+
+  res.json({ user: safeUser, token });
+});
+
+
+app.get("/api/admin/stats", requireAdmin, function (req, res) {
   const db = readDB();
 
   const totalOrders = db.orders.length;
@@ -968,7 +1251,7 @@ app.get("/api/admin/stats", function (req, res) {
 });
 
 
-app.put("/api/admin/settings", function (req, res) {
+app.put("/api/admin/settings", requireAdmin, function (req, res) {
   const {
     commissionRate,
     orangeMoneyNumber,
