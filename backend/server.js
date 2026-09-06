@@ -118,7 +118,7 @@ app.use(function (req, res, next) {
    ROUTE DE TEST
    ========================================================= */
 
-app.get("/api", function (req, res) {
+app.get("/api", async function (req, res) {
   res.json({
     message:
       "Bienvenue sur l'API de Mon Commerce Sénégal 🇸🇳",
@@ -126,8 +126,8 @@ app.get("/api", function (req, res) {
 });
 
 
-app.get("/api/payment-info", function (req, res) {
-  const db = readDB();
+app.get("/api/payment-info", async function (req, res) {
+  const db = await readDB();
 
   res.json({
     orangeMoneyNumber:
@@ -142,7 +142,7 @@ app.get("/api/payment-info", function (req, res) {
    AUTHENTIFICATION
    ========================================================= */
 
-app.post("/api/auth/register", function (req, res) {
+app.post("/api/auth/register", async function (req, res) {
   const { name, email, password, phone, role } =
     req.body;
 
@@ -152,7 +152,7 @@ app.post("/api/auth/register", function (req, res) {
     });
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   const emailExists = db.users.some(function (user) {
     return (
@@ -180,7 +180,7 @@ app.post("/api/auth/register", function (req, res) {
   };
 
   db.users.push(newUser);
-  writeDB(db);
+  await writeDB(db);
 
   const { password: _removed, ...safeUser } = newUser;
 
@@ -190,7 +190,7 @@ app.post("/api/auth/register", function (req, res) {
 });
 
 
-app.post("/api/auth/login", function (req, res) {
+app.post("/api/auth/login", async function (req, res) {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -199,7 +199,7 @@ app.post("/api/auth/login", function (req, res) {
     });
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   const user = db.users.find(function (item) {
     return (
@@ -237,8 +237,8 @@ app.post("/api/auth/login", function (req, res) {
    BOUTIQUES
    ========================================================= */
 
-app.get("/api/shops", function (req, res) {
-  const db = readDB();
+app.get("/api/shops", async function (req, res) {
+  const db = await readDB();
 
   const shopsWithCounts = db.shops.map(function (shop) {
     const productCount = db.products.filter(
@@ -256,8 +256,8 @@ app.get("/api/shops", function (req, res) {
 });
 
 
-app.get("/api/shops/:id", function (req, res) {
-  const db = readDB();
+app.get("/api/shops/:id", async function (req, res) {
+  const db = await readDB();
 
   const shop = db.shops.find(function (item) {
     return Number(item.id) === Number(req.params.id);
@@ -281,7 +281,7 @@ app.get("/api/shops/:id", function (req, res) {
 });
 
 
-app.post("/api/shops", requireAuth, function (req, res) {
+app.post("/api/shops", requireAuth, async function (req, res) {
   const { name, city, category, description, logo, phone } =
     req.body;
 
@@ -292,7 +292,7 @@ app.post("/api/shops", requireAuth, function (req, res) {
     });
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   /*
    * SÉCURITÉ : on utilise l'id du compte connecté
@@ -323,7 +323,7 @@ app.post("/api/shops", requireAuth, function (req, res) {
     return { ...user, shopId: newShop.id, role: "merchant" };
   });
 
-  writeDB(db);
+  await writeDB(db);
 
   /*
    * Le rôle du compte vient de changer (client -> merchant),
@@ -365,8 +365,8 @@ function getShopOwnerCheck(req, res, db) {
 }
 
 
-app.put("/api/shops/:id", requireAuth, function (req, res) {
-  const db = readDB();
+app.put("/api/shops/:id", requireAuth, async function (req, res) {
+  const db = await readDB();
 
   const shop = getShopOwnerCheck(req, res, db);
 
@@ -394,14 +394,14 @@ app.put("/api/shops/:id", requireAuth, function (req, res) {
     return updatedShop;
   });
 
-  writeDB(db);
+  await writeDB(db);
 
   res.json({ shop: updatedShop });
 });
 
 
-app.delete("/api/shops/:id", requireAuth, function (req, res) {
-  const db = readDB();
+app.delete("/api/shops/:id", requireAuth, async function (req, res) {
+  const db = await readDB();
 
   const shop = getShopOwnerCheck(req, res, db);
 
@@ -413,7 +413,7 @@ app.delete("/api/shops/:id", requireAuth, function (req, res) {
     return Number(item.id) !== Number(req.params.id);
   });
 
-  writeDB(db);
+  await writeDB(db);
 
   res.json({ success: true });
 });
@@ -423,8 +423,8 @@ app.delete("/api/shops/:id", requireAuth, function (req, res) {
    PRODUITS
    ========================================================= */
 
-app.get("/api/products", function (req, res) {
-  const db = readDB();
+app.get("/api/products", async function (req, res) {
+  const db = await readDB();
 
   let products = db.products;
 
@@ -526,8 +526,8 @@ app.get("/api/products", function (req, res) {
 });
 
 
-app.get("/api/products/:id", function (req, res) {
-  const db = readDB();
+app.get("/api/products/:id", async function (req, res) {
+  const db = await readDB();
 
   const product = db.products.find(function (item) {
     return Number(item.id) === Number(req.params.id);
@@ -565,7 +565,7 @@ app.get("/api/products/:id", function (req, res) {
 });
 
 
-app.post("/api/products", requireAuth, function (req, res) {
+app.post("/api/products", requireAuth, async function (req, res) {
   const {
     name,
     price,
@@ -584,7 +584,7 @@ app.post("/api/products", requireAuth, function (req, res) {
     });
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   const shop = db.shops.find(function (item) {
     return Number(item.id) === Number(shopId);
@@ -620,7 +620,7 @@ app.post("/api/products", requireAuth, function (req, res) {
   };
 
   db.products.push(newProduct);
-  writeDB(db);
+  await writeDB(db);
 
   res.status(201).json({ product: newProduct });
 });
@@ -656,8 +656,8 @@ function getProductOwnerCheck(req, res, db) {
 }
 
 
-app.put("/api/products/:id", requireAuth, function (req, res) {
-  const db = readDB();
+app.put("/api/products/:id", requireAuth, async function (req, res) {
+  const db = await readDB();
 
   const product = getProductOwnerCheck(req, res, db);
 
@@ -685,7 +685,7 @@ app.put("/api/products/:id", requireAuth, function (req, res) {
     return updatedProduct;
   });
 
-  writeDB(db);
+  await writeDB(db);
 
   res.json({ product: updatedProduct });
 });
@@ -694,8 +694,8 @@ app.put("/api/products/:id", requireAuth, function (req, res) {
 app.delete(
   "/api/products/:id",
   requireAuth,
-  function (req, res) {
-    const db = readDB();
+  async function (req, res) {
+    const db = await readDB();
 
     const product = getProductOwnerCheck(req, res, db);
 
@@ -707,7 +707,7 @@ app.delete(
       return Number(item.id) !== Number(req.params.id);
     });
 
-    writeDB(db);
+    await writeDB(db);
 
     res.json({ success: true });
   }
@@ -718,8 +718,8 @@ app.delete(
    COMMANDES
    ========================================================= */
 
-app.get("/api/orders", function (req, res) {
-  const db = readDB();
+app.get("/api/orders", async function (req, res) {
+  const db = await readDB();
 
   let orders = db.orders;
 
@@ -748,7 +748,7 @@ app.get("/api/orders", function (req, res) {
 });
 
 
-app.post("/api/orders", function (req, res) {
+app.post("/api/orders", async function (req, res) {
   const {
     customer,
     products,
@@ -788,7 +788,7 @@ app.post("/api/orders", function (req, res) {
     });
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   /*
    * Vérifie que le stock est suffisant avant de
@@ -857,14 +857,14 @@ app.post("/api/orders", function (req, res) {
   };
 
   db.orders.push(newOrder);
-  writeDB(db);
+  await writeDB(db);
 
   res.status(201).json({ order: newOrder });
 });
 
 
-app.get("/api/orders/:orderNumber", function (req, res) {
-  const db = readDB();
+app.get("/api/orders/:orderNumber", async function (req, res) {
+  const db = await readDB();
 
   const order = db.orders.find(function (item) {
     return item.orderNumber === req.params.orderNumber;
@@ -883,8 +883,8 @@ app.get("/api/orders/:orderNumber", function (req, res) {
 app.put(
   "/api/orders/:orderNumber",
   requireAuth,
-  function (req, res) {
-    const db = readDB();
+  async function (req, res) {
+    const db = await readDB();
 
     const order = db.orders.find(function (item) {
       return item.orderNumber === req.params.orderNumber;
@@ -945,7 +945,7 @@ app.put(
         : item;
     });
 
-    writeDB(db);
+    await writeDB(db);
 
     res.json({ order: updatedOrder });
   }
@@ -956,8 +956,8 @@ app.put(
    AVIS CLIENTS
    ========================================================= */
 
-app.get("/api/reviews", function (req, res) {
-  const db = readDB();
+app.get("/api/reviews", async function (req, res) {
+  const db = await readDB();
 
   let reviews = db.reviews;
 
@@ -974,7 +974,7 @@ app.get("/api/reviews", function (req, res) {
 });
 
 
-app.post("/api/reviews", requireAuth, function (req, res) {
+app.post("/api/reviews", requireAuth, async function (req, res) {
   const { productId, customerName, rating, comment } =
     req.body;
 
@@ -1004,7 +1004,7 @@ app.post("/api/reviews", requireAuth, function (req, res) {
     });
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   const productExists = db.products.some(function (product) {
     return Number(product.id) === Number(productId);
@@ -1047,7 +1047,7 @@ app.post("/api/reviews", requireAuth, function (req, res) {
   };
 
   db.reviews.push(newReview);
-  writeDB(db);
+  await writeDB(db);
 
   res.status(201).json({ review: newReview });
 });
@@ -1057,8 +1057,8 @@ app.post("/api/reviews", requireAuth, function (req, res) {
    FAVORIS
    ========================================================= */
 
-app.get("/api/favorites", function (req, res) {
-  const db = readDB();
+app.get("/api/favorites", async function (req, res) {
+  const db = await readDB();
 
   if (!req.query.email) {
     return res.status(400).json({
@@ -1092,7 +1092,7 @@ app.get("/api/favorites", function (req, res) {
 });
 
 
-app.post("/api/favorites", requireAuth, function (req, res) {
+app.post("/api/favorites", requireAuth, async function (req, res) {
   const { productId } = req.body;
   const customerEmail = req.user.email;
 
@@ -1103,7 +1103,7 @@ app.post("/api/favorites", requireAuth, function (req, res) {
     });
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   const alreadyExists = db.favorites.some(function (favorite) {
     return (
@@ -1123,13 +1123,13 @@ app.post("/api/favorites", requireAuth, function (req, res) {
     productId: Number(productId),
   });
 
-  writeDB(db);
+  await writeDB(db);
 
   res.status(201).json({ success: true });
 });
 
 
-app.delete("/api/favorites", requireAuth, function (req, res) {
+app.delete("/api/favorites", requireAuth, async function (req, res) {
   const { productId } = req.body;
   const customerEmail = req.user.email;
 
@@ -1140,7 +1140,7 @@ app.delete("/api/favorites", requireAuth, function (req, res) {
     });
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   db.favorites = db.favorites.filter(function (favorite) {
     return !(
@@ -1150,7 +1150,7 @@ app.delete("/api/favorites", requireAuth, function (req, res) {
     );
   });
 
-  writeDB(db);
+  await writeDB(db);
 
   res.json({ success: true });
 });
@@ -1168,7 +1168,7 @@ app.delete("/api/favorites", requireAuth, function (req, res) {
  * ADMIN_SETUP_KEY sur Render — sans cette clé, personne
  * ne peut devenir admin.
  */
-app.post("/api/admin/promote", requireAuth, function (req, res) {
+app.post("/api/admin/promote", requireAuth, async function (req, res) {
   const { setupKey } = req.body;
 
   const expectedKey = process.env.ADMIN_SETUP_KEY;
@@ -1186,7 +1186,7 @@ app.post("/api/admin/promote", requireAuth, function (req, res) {
     });
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   let updatedUser = null;
 
@@ -1205,7 +1205,7 @@ app.post("/api/admin/promote", requireAuth, function (req, res) {
       .json({ error: "Compte introuvable." });
   }
 
-  writeDB(db);
+  await writeDB(db);
 
   const { password: _removed, ...safeUser } = updatedUser;
 
@@ -1215,8 +1215,8 @@ app.post("/api/admin/promote", requireAuth, function (req, res) {
 });
 
 
-app.get("/api/admin/stats", requireAdmin, function (req, res) {
-  const db = readDB();
+app.get("/api/admin/stats", requireAdmin, async function (req, res) {
+  const db = await readDB();
 
   const totalOrders = db.orders.length;
 
@@ -1251,14 +1251,14 @@ app.get("/api/admin/stats", requireAdmin, function (req, res) {
 });
 
 
-app.put("/api/admin/settings", requireAdmin, function (req, res) {
+app.put("/api/admin/settings", requireAdmin, async function (req, res) {
   const {
     commissionRate,
     orangeMoneyNumber,
     waveNumber,
   } = req.body;
 
-  const db = readDB();
+  const db = await readDB();
 
   const updatedSettings = { ...db.settings };
 
@@ -1284,7 +1284,7 @@ app.put("/api/admin/settings", requireAdmin, function (req, res) {
   }
 
   db.settings = updatedSettings;
-  writeDB(db);
+  await writeDB(db);
 
   res.json({ settings: db.settings });
 });

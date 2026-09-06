@@ -1,25 +1,34 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { MongoClient } from "mongodb";
 
 /*
  * =========================================================
  * BASE DE DONNÉES "MON COMMERCE SÉNÉGAL"
  * =========================================================
  *
- * Pour rester simple et accessible à un débutant, on stocke
- * toutes les données dans un seul fichier JSON
- * (data/db.json) sur le serveur.
+ * Deux modes possibles :
  *
- * C'est une vraie base de données partagée par TOUS les
- * visiteurs du site (contrairement au localStorage du
- * navigateur, qui est propre à chaque personne).
+ * 1) MONGODB_URI est définie (cas du site en ligne, sur
+ *    Render) -> on utilise une vraie base de données
+ *    MongoDB Atlas, qui garde les données en permanence,
+ *    même si le serveur redémarre.
  *
- * Pour un site avec beaucoup de trafic, on utiliserait
- * plutôt une vraie base de données comme MongoDB ou
- * PostgreSQL — mais le principe (lire/écrire des données
- * partagées) reste le même.
+ * 2) MONGODB_URI n'est pas définie (cas du développement
+ *    en local, sur ton PC) -> on utilise un simple fichier
+ *    JSON (data/db.json), plus simple à utiliser sans
+ *    créer de compte MongoDB juste pour tester en local.
+ *
+ * Dans les deux cas, le reste du code (server.js) utilise
+ * exactement les mêmes fonctions readDB() / writeDB(),
+ * sans se soucier de savoir laquelle des deux est utilisée.
  */
+
+const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_DB_NAME = "mon_commerce_senegal";
+const MONGODB_COLLECTION = "app_data";
+const MONGODB_DOC_ID = "singleton";
 
 const __dirname = path.dirname(
   fileURLToPath(import.meta.url)
@@ -138,11 +147,114 @@ const initialData = {
   favorites: [],
 };
 
-/*
- * Crée le fichier db.json au premier démarrage
- * s'il n'existe pas encore.
- */
-function ensureDbFile() {
+
+/* =========================================================
+   MODE MONGODB (site en ligne, sur Render)
+   ========================================================= */
+
+let mongoClientPromise = null;
+
+function getMongoCollection() {
+  if (!mongoClientPromise) {
+    const client = new MongoClient(MONGODB_URI);
+    mongoClientPromise = client
+      .connect()
+      .then(function () {
+        console.log(
+          "✅ Connecté à MongoDB Atlas (données permanentes)"
+        );
+        return client;
+      });
+  }
+
+  return mongoClientPromise.then(function (client) {
+    return client
+      .db(MONGODB_DB_NAME)
+      .collection(MONGODB_COLLECTION);
+  });
+}
+
+function applyMigrations(data) {
+  let changed = false;
+
+  if (!Array.isArray(data.reviews)) {
+    data.reviews = [];
+    changed = true;
+  }
+
+  if (!Array.isArray(data.favorites)) {
+    data.favorites = [];
+    changed = true;
+  }
+
+  if (!data.settings || typeof data.settings !== "object") {
+    data.settings = {
+      commissionRate: 0.1,
+      orangeMoneyNumber: "",
+      waveNumber: "",
+    };
+    changed = true;
+  } else {
+    if (data.settings.orangeMoneyNumber === undefined) {
+      data.settings.orangeMoneyNumber = "";
+      changed = true;
+    }
+
+    if (data.settings.waveNumber === undefined) {
+      data.settings.waveNumber = "";
+      changed = true;
+    }
+  }
+
+  return changed;
+}
+
+async function readDBFromMongo() {
+  const collection = await getMongoCollection();
+
+  let doc = await collection.findOne({
+    _id: MONGODB_DOC_ID,
+  });
+
+  if (!doc) {
+    doc = {
+      _id: MONGODB_DOC_ID,
+      ...JSON.parse(JSON.stringify(initialData)),
+    };
+
+    await collection.insertOne(doc);
+  }
+
+  const changed = applyMigrations(doc);
+
+  if (changed) {
+    await collection.replaceOne(
+      { _id: MONGODB_DOC_ID },
+      doc
+    );
+  }
+
+  const { _id, ...data } = doc;
+
+  return data;
+}
+
+async function writeDBToMongo(db) {
+  const collection = await getMongoCollection();
+
+  await collection.replaceOne(
+    { _id: MONGODB_DOC_ID },
+    { _id: MONGODB_DOC_ID, ...db },
+    { upsert: true }
+  );
+}
+
+
+/* =========================================================
+   MODE FICHIER LOCAL (développement sur ton PC)
+   ========================================================= */
+
+function ensureLocalDbFile() {
   const dataDir = path.join(__dirname, "data");
 
   if (!fs.existsSync(dataDir)) {
@@ -158,82 +270,64 @@ function ensureDbFile() {
   }
 }
 
-export function readDB() {
-  ensureDbFile();
+function readDBFromFile() {
+  ensureLocalDbFile();
 
   const raw = fs.readFileSync(DB_PATH, "utf-8");
 
-  let db;
+  let data;
 
   try {
-    db = JSON.parse(raw);
+    data = JSON.parse(raw);
   } catch (error) {
     console.error(
       "Erreur de lecture de la base de données, réinitialisation :",
       error
     );
 
+    data = JSON.parse(JSON.stringify(initialData));
+  }
+
+  const changed = applyMigrations(data);
+
+  if (changed) {
     fs.writeFileSync(
       DB_PATH,
-      JSON.stringify(initialData, null, 2),
+      JSON.stringify(data, null, 2),
       "utf-8"
     );
-
-    return JSON.parse(
-      JSON.stringify(initialData)
-    );
   }
 
-  /*
-   * Migration douce : si la base de données existait déjà
-   * avant l'ajout des avis / favoris / réglages, on complète
-   * simplement les champs manquants sans rien effacer.
-   */
-
-  let needsSave = false;
-
-  if (!Array.isArray(db.reviews)) {
-    db.reviews = [];
-    needsSave = true;
-  }
-
-  if (!Array.isArray(db.favorites)) {
-    db.favorites = [];
-    needsSave = true;
-  }
-
-  if (!db.settings || typeof db.settings !== "object") {
-    db.settings = {
-      commissionRate: 0.1,
-      orangeMoneyNumber: "",
-      waveNumber: "",
-    };
-    needsSave = true;
-  } else {
-    if (db.settings.orangeMoneyNumber === undefined) {
-      db.settings.orangeMoneyNumber = "";
-      needsSave = true;
-    }
-
-    if (db.settings.waveNumber === undefined) {
-      db.settings.waveNumber = "";
-      needsSave = true;
-    }
-  }
-
-  if (needsSave) {
-    writeDB(db);
-  }
-
-  return db;
+  return data;
 }
 
-export function writeDB(db) {
+function writeDBToFile(db) {
   fs.writeFileSync(
     DB_PATH,
     JSON.stringify(db, null, 2),
     "utf-8"
   );
+}
+
+
+/* =========================================================
+   FONCTIONS UTILISÉES PAR LE RESTE DU SERVEUR
+   ========================================================= */
+
+export async function readDB() {
+  if (MONGODB_URI) {
+    return readDBFromMongo();
+  }
+
+  return readDBFromFile();
+}
+
+export async function writeDB(db) {
+  if (MONGODB_URI) {
+    return writeDBToMongo(db);
+  }
+
+  return writeDBToFile(db);
 }
 
 /*
