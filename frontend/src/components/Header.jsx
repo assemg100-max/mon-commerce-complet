@@ -307,5 +307,3 @@ function handleLogout() {
 }
 
 export default Header;
-
-

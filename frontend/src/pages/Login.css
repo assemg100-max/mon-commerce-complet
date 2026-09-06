@@ -123,3 +123,13 @@
     padding: 28px 22px;
   }
 }
+.login-forgot {
+  text-align: center;
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.login-forgot a {
+  color: var(--sun-dark, #c46f00);
+  font-weight: 600;
+}

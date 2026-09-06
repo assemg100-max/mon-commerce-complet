@@ -14,6 +14,8 @@ import CategoriesPage from "./pages/CategoriesPage";
 import Category from "./pages/Category";
 
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Register from "./pages/Register";
 import Account from "./pages/Account";
 import Favorites from "./pages/Favorites";
@@ -120,6 +122,16 @@ function App() {
           <Route
             path="/connexion"
             element={<Login />}
+          />
+
+          <Route
+            path="/mot-de-passe-oublie"
+            element={<ForgotPassword />}
+          />
+
+          <Route
+            path="/reinitialiser-mot-de-passe"
+            element={<ResetPassword />}
           />
 
           <Route

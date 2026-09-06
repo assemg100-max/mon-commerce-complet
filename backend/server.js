@@ -2,8 +2,10 @@ import express from "express";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 import { readDB, writeDB, getNextId } from "./db.js";
+import { sendEmail } from "./mailer.js";
 
 /*
  * =========================================================
@@ -352,9 +354,173 @@ app.put(
 );
 
 
-/* =========================================================
-   BOUTIQUES
-   ========================================================= */
+/*
+ * Demande de réinitialisation de mot de passe.
+ * On répond toujours pareil (succès), même si l'email
+ * n'existe pas, pour ne pas révéler quels emails sont
+ * inscrits sur le site (bonne pratique de sécurité).
+ */
+app.post(
+  "/api/auth/forgot-password",
+  async function (req, res) {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "L'email est obligatoire.",
+      });
+    }
+
+    const db = await readDB();
+
+    const user = db.users.find(function (item) {
+      return (
+        item.email.toLowerCase() ===
+        String(email).toLowerCase()
+      );
+    });
+
+    if (user) {
+      const resetToken = crypto
+        .randomBytes(32)
+        .toString("hex");
+
+      const resetTokenExpiry =
+        Date.now() + 60 * 60 * 1000; // 1 heure
+
+      db.users = db.users.map(function (item) {
+        if (Number(item.id) !== Number(user.id)) {
+          return item;
+        }
+
+        return {
+          ...item,
+          resetToken,
+          resetTokenExpiry,
+        };
+      });
+
+      await writeDB(db);
+
+      const frontendUrl =
+        process.env.FRONTEND_URL ||
+        "http://localhost:5173";
+
+      const resetLink =
+        frontendUrl +
+        "/reinitialiser-mot-de-passe?email=" +
+        encodeURIComponent(user.email) +
+        "&token=" +
+        resetToken;
+
+      try {
+        await sendEmail({
+          to: user.email,
+          subject:
+            "Réinitialisation de votre mot de passe — Mon Commerce Sénégal",
+          html:
+            "<p>Bonjour " +
+            user.name +
+            ",</p>" +
+            "<p>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le lien ci-dessous (valable 1 heure) :</p>" +
+            '<p><a href="' +
+            resetLink +
+            '">' +
+            resetLink +
+            "</a></p>" +
+            "<p>Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet email.</p>",
+        });
+      } catch (error) {
+        console.error(
+          "Erreur lors de l'envoi de l'email :",
+          error
+        );
+      }
+    }
+
+    res.json({
+      message:
+        "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.",
+    });
+  }
+);
+
+
+/*
+ * Réinitialisation effective du mot de passe grâce
+ * au jeton reçu par email.
+ */
+app.post(
+  "/api/auth/reset-password",
+  async function (req, res) {
+    const { email, token, newPassword } = req.body;
+
+    if (!email || !token || !newPassword) {
+      return res.status(400).json({
+        error: "Tous les champs sont obligatoires.",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        error:
+          "Le nouveau mot de passe doit contenir au moins 6 caractères.",
+      });
+    }
+
+    const db = await readDB();
+
+    const user = db.users.find(function (item) {
+      return (
+        item.email.toLowerCase() ===
+        String(email).toLowerCase()
+      );
+    });
+
+    if (
+      !user ||
+      !user.resetToken ||
+      user.resetToken !== token
+    ) {
+      return res.status(400).json({
+        error: "Lien invalide ou déjà utilisé.",
+      });
+    }
+
+    if (
+      !user.resetTokenExpiry ||
+      Date.now() > user.resetTokenExpiry
+    ) {
+      return res.status(400).json({
+        error:
+          "Ce lien a expiré, merci de refaire une demande.",
+      });
+    }
+
+    const newPasswordHash = bcrypt.hashSync(
+      newPassword,
+      10
+    );
+
+    db.users = db.users.map(function (item) {
+      if (Number(item.id) !== Number(user.id)) {
+        return item;
+      }
+
+      const {
+        resetToken: _removedToken,
+        resetTokenExpiry: _removedExpiry,
+        ...rest
+      } = item;
+
+      return { ...rest, password: newPasswordHash };
+    });
+
+    await writeDB(db);
+
+    res.json({ success: true });
+  }
+);
 
 app.get("/api/shops", async function (req, res) {
   const db = await readDB();

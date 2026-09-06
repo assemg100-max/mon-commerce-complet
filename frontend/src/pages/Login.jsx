@@ -132,6 +132,12 @@ function Login() {
 
           </form>
 
+          <p className="login-forgot">
+            <Link to="/mot-de-passe-oublie">
+              Mot de passe oublié ?
+            </Link>
+          </p>
+
           <p className="login-register">
             Vous n'avez pas encore de compte ?
             {" "}

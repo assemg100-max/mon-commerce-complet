@@ -115,6 +115,20 @@ export function changePassword(currentPassword, newPassword) {
   });
 }
 
+export function forgotPassword(email) {
+  return apiRequest("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function resetPassword(email, token, newPassword) {
+  return apiRequest("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ email, token, newPassword }),
+  });
+}
+
 
 /* =========================================================
    BOUTIQUES
