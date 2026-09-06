@@ -8,6 +8,8 @@ import {
   getPaymentInfo,
 } from "../data/api";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Checkout.css";
 
 function Checkout() {
@@ -206,6 +208,7 @@ function Checkout() {
   if (cart.length === 0) {
     return (
       <main className="checkout-page">
+<PageTitle title="Finaliser ma commande" />
         <div className="checkout-container">
           <section className="checkout-empty">
 
@@ -237,6 +240,7 @@ function Checkout() {
 
   return (
     <main className="checkout-page">
+<PageTitle title="Finaliser ma commande" />
       <div className="checkout-container">
 
         <div className="checkout-title">

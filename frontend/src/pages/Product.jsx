@@ -10,6 +10,8 @@ import {
   removeFavorite,
 } from "../data/api";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Product.css";
 
 function getCurrentUser() {
@@ -319,6 +321,8 @@ function Product() {
     <main className="product-page">
 
       <div className="product-container">
+
+        <PageTitle title={product.name} />
 
         <Link
           to={"/boutique/" + product.shopId}

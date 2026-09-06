@@ -3,6 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { getShops, searchProducts } from "../data/api";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Shops.css";
 
 function Shops() {
@@ -155,6 +157,7 @@ function Shops() {
 
   return (
     <main className="shops-page">
+      <PageTitle title="Boutiques" />
 
       <div className="shops-page-container">
 

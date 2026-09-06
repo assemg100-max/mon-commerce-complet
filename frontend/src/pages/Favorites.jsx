@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { getFavorites, removeFavorite } from "../data/api";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Favorites.css";
 
 function Favorites() {
@@ -71,6 +73,7 @@ function Favorites() {
 
   return (
     <main className="favorites-page">
+<PageTitle title="Mes favoris" />
       <div className="favorites-container">
 
         <div className="favorites-title">

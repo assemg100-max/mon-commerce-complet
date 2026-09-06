@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { loginUser } from "../data/api";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Login.css";
 
 function Login() {
@@ -60,6 +62,7 @@ function Login() {
 
   return (
     <main className="login-page">
+      <PageTitle title="Connexion" />
       <div className="login-container">
 
         <section className="login-card">

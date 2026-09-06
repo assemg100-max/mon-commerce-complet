@@ -23,6 +23,11 @@ import Favorites from "./pages/Favorites";
 import Admin from "./pages/Admin";
 import BecomeAdmin from "./pages/BecomeAdmin";
 
+import About from "./pages/About";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+import Contact from "./pages/Contact";
+
 import MerchantDashboard from "./pages/merchant/MerchantDashboard";
 import MerchantOrders from "./pages/merchant/MerchantOrders";
 import MerchantProducts from "./pages/merchant/MerchantProducts";
@@ -162,6 +167,31 @@ function App() {
           <Route
             path="/devenir-admin"
             element={<BecomeAdmin />}
+          />
+
+
+          {/* =========================
+              PAGES LÉGALES
+          ========================= */}
+
+          <Route
+            path="/a-propos"
+            element={<About />}
+          />
+
+          <Route
+            path="/conditions"
+            element={<Terms />}
+          />
+
+          <Route
+            path="/confidentialite"
+            element={<Privacy />}
+          />
+
+          <Route
+            path="/contact"
+            element={<Contact />}
           />
 
 

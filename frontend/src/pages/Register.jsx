@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { registerUser } from "../data/api";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Register.css";
 
 function Register() {
@@ -60,6 +62,7 @@ function Register() {
 
   return (
     <main className="register-page">
+      <PageTitle title="Créer un compte" />
       <div className="register-container">
 
         <section className="register-card">

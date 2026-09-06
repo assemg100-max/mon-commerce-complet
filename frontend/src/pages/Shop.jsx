@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 
 import { getShopById, getProducts } from "../data/api";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Shop.css";
 
 function Shop() {
@@ -173,6 +175,8 @@ function Shop() {
         "--shop-accent": shop.themeColor || "#0f766e",
       }}
     >
+
+      <PageTitle title={shop.name} />
 
       <section className="shop-header">
 

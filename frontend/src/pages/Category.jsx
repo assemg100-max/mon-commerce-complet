@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 
 import { searchProducts } from "../data/api";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Category.css";
 
 const categories = {
@@ -85,6 +87,7 @@ function Category() {
   if (!category) {
     return (
       <main className="category-page">
+<PageTitle title={category ? category.name : "Categorie"} />
         <div className="category-container">
           <h1>Catégorie introuvable ❌</h1>
 
@@ -98,6 +101,7 @@ function Category() {
 
   return (
     <main className="category-page">
+<PageTitle title={category ? category.name : "Categorie"} />
       <div className="category-container">
 
         <div className="category-title">

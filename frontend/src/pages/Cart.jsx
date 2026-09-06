@@ -1,6 +1,8 @@
 ﻿import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Cart.css";
 
 function Cart() {
@@ -198,6 +200,7 @@ Number(product.price) || 0;
 if (cart.length === 0) {
 return (
 <main className="cart-page">
+<PageTitle title="Mon panier" />
 
     <div className="cart-container">
 
@@ -235,6 +238,7 @@ return (
 
 return (
 <main className="cart-page">
+<PageTitle title="Mon panier" />
 
   <div className="cart-container">
 

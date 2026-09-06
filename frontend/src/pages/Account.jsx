@@ -8,6 +8,8 @@ import {
   clearToken,
 } from "../data/api";
 
+import PageTitle from "../components/PageTitle";
+
 import "./Account.css";
 
 function Account() {
@@ -204,6 +206,7 @@ function Account() {
 
   return (
     <main className="account-page">
+<PageTitle title="Mon compte" />
 
       <div className="account-container">
 
