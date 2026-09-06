@@ -255,11 +255,7 @@ function handleLogout() {
             <div className="header-user">
 
               <Link
-                to={
-                  isMerchant
-                    ? "/commercant/profil"
-                    : "/compte"
-                }
+                to="/compte"
                 className="header-user-button"
               >
                 👤{" "}
@@ -311,3 +307,5 @@ function handleLogout() {
 }
 
 export default Header;
+
+
