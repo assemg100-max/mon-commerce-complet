@@ -1144,6 +1144,52 @@ app.post("/api/orders", async function (req, res) {
   db.orders.push(newOrder);
   await writeDB(db);
 
+  /*
+   * L'envoi de l'email ne doit jamais empêcher la
+   * commande de réussir, même si Gmail est indisponible.
+   */
+  if (newOrder.customer.email) {
+    const productsListHtml = newOrder.products
+      .map(function (product) {
+        return (
+          "<li>" +
+          product.name +
+          " × " +
+          product.quantity +
+          "</li>"
+        );
+      })
+      .join("");
+
+    sendEmail({
+      to: newOrder.customer.email,
+      subject:
+        "Confirmation de votre commande " +
+        newOrder.orderNumber +
+        " — Mon Commerce Sénégal",
+      html:
+        "<p>Bonjour " +
+        newOrder.customer.name +
+        ",</p>" +
+        "<p>Merci pour votre commande ! Voici le récapitulatif :</p>" +
+        "<p><strong>Numéro de commande :</strong> " +
+        newOrder.orderNumber +
+        "</p>" +
+        "<ul>" +
+        productsListHtml +
+        "</ul>" +
+        "<p><strong>Total :</strong> " +
+        newOrder.total.toLocaleString("fr-FR") +
+        " F CFA</p>" +
+        "<p>Nous vous préviendrons par email dès que votre commande sera confirmée par le vendeur.</p>",
+    }).catch(function (error) {
+      console.error(
+        "Erreur lors de l'envoi de l'email de confirmation :",
+        error
+      );
+    });
+  }
+
   res.status(201).json({ order: newOrder });
 });
 
@@ -1231,6 +1277,42 @@ app.put(
     });
 
     await writeDB(db);
+
+    /*
+     * Si le statut a réellement changé, on prévient
+     * le client par email (sans jamais bloquer la
+     * réponse si l'envoi échoue).
+     */
+    if (
+      safeUpdates.status &&
+      safeUpdates.status !== order.status &&
+      updatedOrder.customer &&
+      updatedOrder.customer.email
+    ) {
+      sendEmail({
+        to: updatedOrder.customer.email,
+        subject:
+          "Mise à jour de votre commande " +
+          updatedOrder.orderNumber +
+          " — Mon Commerce Sénégal",
+        html:
+          "<p>Bonjour " +
+          updatedOrder.customer.name +
+          ",</p>" +
+          "<p>Le statut de votre commande <strong>" +
+          updatedOrder.orderNumber +
+          "</strong> a changé :</p>" +
+          "<p style=\"font-size: 18px;\"><strong>" +
+          safeUpdates.status +
+          "</strong></p>" +
+          "<p>Merci de votre confiance !</p>",
+      }).catch(function (error) {
+        console.error(
+          "Erreur lors de l'envoi de l'email de statut :",
+          error
+        );
+      });
+    }
 
     res.json({ order: updatedOrder });
   }
