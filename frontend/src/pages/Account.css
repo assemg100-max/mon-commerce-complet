@@ -334,3 +334,64 @@
     gap: 10px;
   }
 }
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 420px;
+}
+
+.account-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.account-form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft, #4a5468);
+}
+
+.account-form-group input {
+  padding: 10px 12px;
+  border: 1px solid var(--border, #e8ddc9);
+  border-radius: 8px;
+  font-family: var(--font-body, inherit);
+}
+
+.account-form button {
+  align-self: flex-start;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 8px;
+  background: var(--sun, #e8890c);
+  color: white;
+  font-weight: 600;
+}
+
+.account-form button:hover {
+  background: var(--sun-dark, #c46f00);
+}
+
+.account-form button:disabled {
+  opacity: 0.6;
+}
+
+.account-form-success {
+  color: #15803d;
+  background: #dcfce7;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.account-form-error {
+  color: #b42318;
+  background: #fee2e2;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}

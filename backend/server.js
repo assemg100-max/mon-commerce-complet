@@ -233,6 +233,125 @@ app.post("/api/auth/login", async function (req, res) {
 });
 
 
+/*
+ * Modifier son nom / téléphone. On ne permet jamais de
+ * changer l'email ou le rôle par cette route.
+ */
+app.put(
+  "/api/auth/profile",
+  requireAuth,
+  async function (req, res) {
+    const { name, phone } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        error: "Le nom est obligatoire.",
+      });
+    }
+
+    const db = await readDB();
+
+    let updatedUser = null;
+
+    db.users = db.users.map(function (user) {
+      if (Number(user.id) !== Number(req.user.id)) {
+        return user;
+      }
+
+      updatedUser = {
+        ...user,
+        name: name.trim(),
+        phone: phone ? phone.trim() : user.phone,
+      };
+
+      return updatedUser;
+    });
+
+    if (!updatedUser) {
+      return res
+        .status(404)
+        .json({ error: "Compte introuvable." });
+    }
+
+    await writeDB(db);
+
+    const { password: _removed, ...safeUser } =
+      updatedUser;
+
+    const token = createToken(updatedUser);
+
+    res.json({ user: safeUser, token });
+  }
+);
+
+
+/*
+ * Changer son mot de passe. Il faut prouver qu'on
+ * connaît l'ancien mot de passe avant de le changer.
+ */
+app.put(
+  "/api/auth/password",
+  requireAuth,
+  async function (req, res) {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        error:
+          "L'ancien et le nouveau mot de passe sont obligatoires.",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        error:
+          "Le nouveau mot de passe doit contenir au moins 6 caractères.",
+      });
+    }
+
+    const db = await readDB();
+
+    const user = db.users.find(function (item) {
+      return Number(item.id) === Number(req.user.id);
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: "Compte introuvable." });
+    }
+
+    const passwordMatches = bcrypt.compareSync(
+      currentPassword,
+      user.password
+    );
+
+    if (!passwordMatches) {
+      return res.status(401).json({
+        error: "Votre mot de passe actuel est incorrect.",
+      });
+    }
+
+    const newPasswordHash = bcrypt.hashSync(
+      newPassword,
+      10
+    );
+
+    db.users = db.users.map(function (item) {
+      if (Number(item.id) !== Number(req.user.id)) {
+        return item;
+      }
+
+      return { ...item, password: newPasswordHash };
+    });
+
+    await writeDB(db);
+
+    res.json({ success: true });
+  }
+);
+
+
 /* =========================================================
    BOUTIQUES
    ========================================================= */

@@ -95,6 +95,26 @@ export function loginUser(email, password) {
   });
 }
 
+export function updateProfile(profileData) {
+  return apiRequest("/auth/profile", {
+    method: "PUT",
+    body: JSON.stringify(profileData),
+  }).then(function (data) {
+    storeToken(data.token);
+    return data.user;
+  });
+}
+
+export function changePassword(currentPassword, newPassword) {
+  return apiRequest("/auth/password", {
+    method: "PUT",
+    body: JSON.stringify({
+      currentPassword,
+      newPassword,
+    }),
+  });
+}
+
 
 /* =========================================================
    BOUTIQUES

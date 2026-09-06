@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { getOrdersByEmail } from "../data/api";
+import {
+  getOrdersByEmail,
+  updateProfile,
+  changePassword,
+  clearToken,
+} from "../data/api";
 
 import "./Account.css";
 
@@ -11,6 +16,25 @@ function Account() {
   const [user, setUser] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    phone: "",
+  });
+  const [profileMessage, setProfileMessage] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordMessage, setPasswordMessage] =
+    useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [savingPassword, setSavingPassword] =
+    useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem(
@@ -33,6 +57,11 @@ function Account() {
     }
 
     setUser(currentUser);
+
+    setProfileForm({
+      name: currentUser.name || "",
+      phone: currentUser.phone || "",
+    });
 
     if (!currentUser.email) {
       setLoadingOrders(false);
@@ -58,7 +87,115 @@ function Account() {
       "mon-commerce-current-user"
     );
 
+    clearToken();
+
     navigate("/");
+  }
+
+  function handleProfileChange(event) {
+    const { name, value } = event.target;
+
+    setProfileForm(function (previous) {
+      return { ...previous, [name]: value };
+    });
+  }
+
+  function handleProfileSubmit(event) {
+    event.preventDefault();
+
+    setProfileMessage("");
+    setProfileError("");
+
+    if (!profileForm.name.trim()) {
+      setProfileError("Le nom est obligatoire.");
+      return;
+    }
+
+    setSavingProfile(true);
+
+    updateProfile({
+      name: profileForm.name.trim(),
+      phone: profileForm.phone.trim(),
+    })
+      .then(function (updatedUser) {
+        localStorage.setItem(
+          "mon-commerce-current-user",
+          JSON.stringify(updatedUser)
+        );
+
+        setUser(updatedUser);
+
+        window.dispatchEvent(new Event("userUpdated"));
+
+        setProfileMessage(
+          "Profil mis à jour avec succès ✅"
+        );
+      })
+      .catch(function (error) {
+        setProfileError(error.message);
+      })
+      .finally(function () {
+        setSavingProfile(false);
+      });
+  }
+
+  function handlePasswordChange(event) {
+    const { name, value } = event.target;
+
+    setPasswordForm(function (previous) {
+      return { ...previous, [name]: value };
+    });
+  }
+
+  function handlePasswordSubmit(event) {
+    event.preventDefault();
+
+    setPasswordMessage("");
+    setPasswordError("");
+
+    if (
+      !passwordForm.currentPassword ||
+      !passwordForm.newPassword
+    ) {
+      setPasswordError(
+        "Tous les champs sont obligatoires."
+      );
+      return;
+    }
+
+    if (
+      passwordForm.newPassword !==
+      passwordForm.confirmPassword
+    ) {
+      setPasswordError(
+        "Les deux nouveaux mots de passe ne correspondent pas."
+      );
+      return;
+    }
+
+    setSavingPassword(true);
+
+    changePassword(
+      passwordForm.currentPassword,
+      passwordForm.newPassword
+    )
+      .then(function () {
+        setPasswordMessage(
+          "Mot de passe modifié avec succès ✅"
+        );
+
+        setPasswordForm({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      })
+      .catch(function (error) {
+        setPasswordError(error.message);
+      })
+      .finally(function () {
+        setSavingPassword(false);
+      });
   }
 
   if (!user) {
@@ -124,6 +261,150 @@ function Account() {
             </div>
 
           </div>
+
+        </section>
+
+        <section className="account-info">
+
+          <div className="account-section-header">
+            <div>
+              <h2>Modifier mon profil</h2>
+
+              <p>
+                Mets à jour ton nom et ton téléphone.
+              </p>
+            </div>
+          </div>
+
+          {profileMessage && (
+            <p className="account-form-success">
+              {profileMessage}
+            </p>
+          )}
+
+          {profileError && (
+            <p className="account-form-error">
+              ⚠️ {profileError}
+            </p>
+          )}
+
+          <form
+            className="account-form"
+            onSubmit={handleProfileSubmit}
+          >
+
+            <div className="account-form-group">
+              <label htmlFor="name">Nom complet</label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                value={profileForm.name}
+                onChange={handleProfileChange}
+              />
+            </div>
+
+            <div className="account-form-group">
+              <label htmlFor="phone">Téléphone</label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={profileForm.phone}
+                onChange={handleProfileChange}
+                placeholder="Ex : 77 123 45 67"
+              />
+            </div>
+
+            <button type="submit" disabled={savingProfile}>
+              {savingProfile
+                ? "Enregistrement..."
+                : "Enregistrer"}
+            </button>
+
+          </form>
+
+        </section>
+
+        <section className="account-info">
+
+          <div className="account-section-header">
+            <div>
+              <h2>Changer mon mot de passe</h2>
+
+              <p>
+                Choisis un nouveau mot de passe pour
+                ton compte.
+              </p>
+            </div>
+          </div>
+
+          {passwordMessage && (
+            <p className="account-form-success">
+              {passwordMessage}
+            </p>
+          )}
+
+          {passwordError && (
+            <p className="account-form-error">
+              ⚠️ {passwordError}
+            </p>
+          )}
+
+          <form
+            className="account-form"
+            onSubmit={handlePasswordSubmit}
+          >
+
+            <div className="account-form-group">
+              <label htmlFor="currentPassword">
+                Mot de passe actuel
+              </label>
+              <input
+                id="currentPassword"
+                name="currentPassword"
+                type="password"
+                value={passwordForm.currentPassword}
+                onChange={handlePasswordChange}
+              />
+            </div>
+
+            <div className="account-form-group">
+              <label htmlFor="newPassword">
+                Nouveau mot de passe
+              </label>
+              <input
+                id="newPassword"
+                name="newPassword"
+                type="password"
+                value={passwordForm.newPassword}
+                onChange={handlePasswordChange}
+              />
+            </div>
+
+            <div className="account-form-group">
+              <label htmlFor="confirmPassword">
+                Confirmer le nouveau mot de passe
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                value={passwordForm.confirmPassword}
+                onChange={handlePasswordChange}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={savingPassword}
+            >
+              {savingPassword
+                ? "Enregistrement..."
+                : "Changer le mot de passe"}
+            </button>
+
+          </form>
 
         </section>
 
