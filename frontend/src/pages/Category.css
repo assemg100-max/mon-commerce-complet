@@ -132,3 +132,18 @@
 .category-product-info strong {
   color: var(--ink, #1a2333);
 }
+
+@media (max-width: 600px) {
+  .category-page {
+    padding: 30px 0 60px;
+  }
+
+  .category-filters {
+    padding: 14px;
+  }
+
+  .category-filter-group input,
+  .category-filter-group select {
+    width: 100%;
+  }
+}

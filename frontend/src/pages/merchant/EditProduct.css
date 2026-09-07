@@ -111,3 +111,9 @@
   margin-top: 16px;
   font-weight: 500;
 }
+
+@media (max-width: 600px) {
+  .edit-product-page {
+    padding: 24px 12px;
+  }
+}
