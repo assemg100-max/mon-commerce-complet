@@ -1,5 +1,9 @@
 import { Link } from "react-router-dom";
 
+import PageTitle from "../components/PageTitle";
+
+import "./CategoriesPage.css";
+
 const categories = [
   {
     id: 1,
@@ -41,29 +45,48 @@ const categories = [
 
 function CategoriesPage() {
   return (
-    <div>
-      <h1>Catégories 🛍️</h1>
+    <main className="categories-page">
+      <PageTitle title="Catégories" />
 
-      <p>
-        Trouvez facilement les produits qui vous intéressent.
-      </p>
+      <div className="categories-page-container">
 
-      <div>
-        {categories.map((category) => (
-          <div key={category.id}>
-            <div>{category.icon}</div>
+        <div className="categories-page-title">
+          <h1>Catégories</h1>
 
-            <h2>{category.name}</h2>
+          <p>
+            Trouvez facilement les produits qui vous
+            intéressent.
+          </p>
+        </div>
 
-            <p>{category.description}</p>
+        <div className="categories-page-grid">
 
-            <Link to={`/categorie/${category.id}`}>
-              Explorer
+          {categories.map((category) => (
+            <Link
+              to={`/categorie/${category.id}`}
+              className="categories-page-card"
+              key={category.id}
+            >
+
+              <div className="categories-page-icon">
+                {category.icon}
+              </div>
+
+              <h2>{category.name}</h2>
+
+              <p>{category.description}</p>
+
+              <span className="categories-page-explore">
+                Explorer →
+              </span>
+
             </Link>
-          </div>
-        ))}
+          ))}
+
+        </div>
+
       </div>
-    </div>
+    </main>
   );
 }
 
