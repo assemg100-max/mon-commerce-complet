@@ -358,3 +358,12 @@ align-self: flex-end;
   border-radius: 8px;
   font-family: var(--font-body, inherit);
 }
+
+.payment-method-option.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.payment-method-option.disabled:hover {
+  border-color: var(--border, #e8ddc9);
+}

@@ -25,6 +25,8 @@ function MerchantProfile() {
     category: "Téléphones",
     description: "",
     themeColor: "#e8890c",
+    orangeMoneyNumber: "",
+    waveNumber: "",
   });
 
   useEffect(() => {
@@ -77,6 +79,9 @@ function MerchantProfile() {
             currentShop.description || "",
           themeColor:
             currentShop.themeColor || "#e8890c",
+          orangeMoneyNumber:
+            currentShop.orangeMoneyNumber || "",
+          waveNumber: currentShop.waveNumber || "",
         });
       })
       .catch(function () {
@@ -160,6 +165,10 @@ function MerchantProfile() {
       category: form.category,
 
       themeColor: form.themeColor,
+
+      orangeMoneyNumber: form.orangeMoneyNumber.trim(),
+
+      waveNumber: form.waveNumber.trim(),
 
       description:
         form.description.trim() ||
@@ -390,6 +399,49 @@ function MerchantProfile() {
               <small>
                 Cette couleur sera utilisée sur la page
                 publique de ta boutique.
+              </small>
+
+            </div>
+
+
+            {/* PAIEMENT MOBILE MONEY */}
+
+            <div className="merchant-profile-group">
+
+              <label htmlFor="orangeMoneyNumber">
+                Numéro Orange Money (facultatif)
+              </label>
+
+              <input
+                id="orangeMoneyNumber"
+                name="orangeMoneyNumber"
+                type="tel"
+                value={form.orangeMoneyNumber}
+                onChange={handleChange}
+                placeholder="Ex : 77 123 45 67"
+              />
+
+            </div>
+
+            <div className="merchant-profile-group">
+
+              <label htmlFor="waveNumber">
+                Numéro Wave (facultatif)
+              </label>
+
+              <input
+                id="waveNumber"
+                name="waveNumber"
+                type="tel"
+                value={form.waveNumber}
+                onChange={handleChange}
+                placeholder="Ex : 70 123 45 67"
+              />
+
+              <small>
+                Si tu renseignes ces numéros, tes clients
+                pourront te payer directement par Mobile
+                Money lors de leur commande.
               </small>
 
             </div>

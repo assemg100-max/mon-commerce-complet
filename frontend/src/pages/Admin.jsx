@@ -11,9 +11,6 @@ function Admin() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [rateInput, setRateInput] = useState("10");
-  const [orangeMoneyNumber, setOrangeMoneyNumber] =
-    useState("");
-  const [waveNumber, setWaveNumber] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(function () {
@@ -52,10 +49,6 @@ function Admin() {
         setRateInput(
           String(Math.round(data.commissionRate * 100))
         );
-        setOrangeMoneyNumber(
-          data.orangeMoneyNumber || ""
-        );
-        setWaveNumber(data.waveNumber || "");
       })
       .catch(function (error) {
         console.error(
@@ -88,8 +81,6 @@ function Admin() {
 
     updateAdminSettings({
       commissionRate: percent / 100,
-      orangeMoneyNumber: orangeMoneyNumber.trim(),
-      waveNumber: waveNumber.trim(),
     })
       .then(function () {
         loadStats();
@@ -191,36 +182,6 @@ function Admin() {
                 }}
               />
               <span>%</span>
-            </div>
-
-            <div className="admin-payment-numbers">
-
-              <div>
-                <label>Numéro Orange Money</label>
-                <input
-                  type="text"
-                  value={orangeMoneyNumber}
-                  onChange={function (event) {
-                    setOrangeMoneyNumber(
-                      event.target.value
-                    );
-                  }}
-                  placeholder="Ex : 77 123 45 67"
-                />
-              </div>
-
-              <div>
-                <label>Numéro Wave</label>
-                <input
-                  type="text"
-                  value={waveNumber}
-                  onChange={function (event) {
-                    setWaveNumber(event.target.value);
-                  }}
-                  placeholder="Ex : 70 123 45 67"
-                />
-              </div>
-
             </div>
 
             <button type="submit" disabled={saving}>

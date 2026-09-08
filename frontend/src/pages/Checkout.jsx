@@ -5,7 +5,6 @@ import {
   getShops,
   getProducts,
   createOrder,
-  getPaymentInfo,
 } from "../data/api";
 
 import PageTitle from "../components/PageTitle";
@@ -19,11 +18,6 @@ function Checkout() {
   const [shops, setShops] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-
-  const [paymentInfo, setPaymentInfo] = useState({
-    orangeMoneyNumber: "",
-    waveNumber: "",
-  });
 
   const [form, setForm] = useState({
     name: "",
@@ -63,15 +57,6 @@ function Checkout() {
           error
         );
       });
-
-    getPaymentInfo()
-      .then(setPaymentInfo)
-      .catch(function (error) {
-        console.error(
-          "Erreur lors du chargement des infos de paiement :",
-          error
-        );
-      });
   }, []);
 
   function getShopById(id) {
@@ -81,6 +66,32 @@ function Checkout() {
       }) || null
     );
   }
+
+  /*
+   * =========================================================
+   * BOUTIQUES DU PANIER
+   * =========================================================
+   *
+   * Comme chaque boutique a maintenant son propre numéro
+   * Mobile Money, le paiement direct par Orange Money/Wave
+   * n'est proposé que si TOUS les produits du panier
+   * viennent de la MÊME boutique (sinon, il faudrait payer
+   * plusieurs commerçants différents en une seule commande).
+   */
+  const shopIdsInCart = [
+    ...new Set(
+      cart.map(function (product) {
+        return Number(product.shopId);
+      })
+    ),
+  ];
+
+  const singleShop =
+    shopIdsInCart.length === 1
+      ? getShopById(shopIdsInCart[0])
+      : null;
+
+  const canPayByMobileMoney = Boolean(singleShop);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -120,6 +131,16 @@ function Checkout() {
     ) {
       alert(
         "Veuillez remplir tous les champs obligatoires."
+      );
+      return;
+    }
+
+    if (
+      form.paymentMethod !== "cod" &&
+      !canPayByMobileMoney
+    ) {
+      alert(
+        "Le paiement Mobile Money n'est disponible que pour une commande d'une seule boutique à la fois."
       );
       return;
     }
@@ -408,6 +429,9 @@ function Checkout() {
                 <label
                   className={
                     "payment-method-option" +
+                    (!canPayByMobileMoney
+                      ? " disabled"
+                      : "") +
                     (form.paymentMethod === "orange_money"
                       ? " selected"
                       : "")
@@ -417,6 +441,7 @@ function Checkout() {
                     type="radio"
                     name="paymentMethod"
                     value="orange_money"
+                    disabled={!canPayByMobileMoney}
                     checked={
                       form.paymentMethod === "orange_money"
                     }
@@ -428,8 +453,9 @@ function Checkout() {
                   <span>
                     <strong>Orange Money</strong>
                     <small>
-                      Envoyez le montant, puis indiquez
-                      la référence de la transaction.
+                      {canPayByMobileMoney
+                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
+                        : "Disponible uniquement pour une commande d'une seule boutique."}
                     </small>
                   </span>
                 </label>
@@ -437,6 +463,9 @@ function Checkout() {
                 <label
                   className={
                     "payment-method-option" +
+                    (!canPayByMobileMoney
+                      ? " disabled"
+                      : "") +
                     (form.paymentMethod === "wave"
                       ? " selected"
                       : "")
@@ -446,6 +475,7 @@ function Checkout() {
                     type="radio"
                     name="paymentMethod"
                     value="wave"
+                    disabled={!canPayByMobileMoney}
                     checked={form.paymentMethod === "wave"}
                     onChange={handleChange}
                   />
@@ -455,8 +485,9 @@ function Checkout() {
                   <span>
                     <strong>Wave</strong>
                     <small>
-                      Envoyez le montant, puis indiquez
-                      la référence de la transaction.
+                      {canPayByMobileMoney
+                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
+                        : "Disponible uniquement pour une commande d'une seule boutique."}
                     </small>
                   </span>
                 </label>
@@ -472,12 +503,19 @@ function Checkout() {
                       {total.toLocaleString("fr-FR")}{" "}
                       F CFA
                     </strong>{" "}
-                    via Orange Money au numéro :
+                    via Orange Money directement à{" "}
+                    <strong>
+                      {singleShop
+                        ? singleShop.name
+                        : "la boutique"}
+                    </strong>{" "}
+                    au numéro :
                   </p>
 
                   <strong className="payment-number">
-                    {paymentInfo.orangeMoneyNumber ||
-                      "Numéro non configuré pour l'instant"}
+                    {(singleShop &&
+                      singleShop.orangeMoneyNumber) ||
+                      "Ce commerçant n'a pas encore configuré son numéro Orange Money"}
                   </strong>
 
                   <label htmlFor="paymentReference">
@@ -506,12 +544,18 @@ function Checkout() {
                       {total.toLocaleString("fr-FR")}{" "}
                       F CFA
                     </strong>{" "}
-                    via Wave au numéro :
+                    via Wave directement à{" "}
+                    <strong>
+                      {singleShop
+                        ? singleShop.name
+                        : "la boutique"}
+                    </strong>{" "}
+                    au numéro :
                   </p>
 
                   <strong className="payment-number">
-                    {paymentInfo.waveNumber ||
-                      "Numéro non configuré pour l'instant"}
+                    {(singleShop && singleShop.waveNumber) ||
+                      "Ce commerçant n'a pas encore configuré son numéro Wave"}
                   </strong>
 
                   <label htmlFor="paymentReference">

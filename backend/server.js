@@ -567,8 +567,16 @@ app.get("/api/shops/:id", async function (req, res) {
 
 
 app.post("/api/shops", requireAuth, async function (req, res) {
-  const { name, city, category, description, logo, phone } =
-    req.body;
+  const {
+    name,
+    city,
+    category,
+    description,
+    logo,
+    phone,
+    orangeMoneyNumber,
+    waveNumber,
+  } = req.body;
 
   if (!name || !city || !category) {
     return res.status(400).json({
@@ -596,6 +604,8 @@ app.post("/api/shops", requireAuth, async function (req, res) {
     ownerId,
     logo: logo || null,
     phone: phone || "",
+    orangeMoneyNumber: orangeMoneyNumber || "",
+    waveNumber: waveNumber || "",
   };
 
   db.shops.push(newShop);
