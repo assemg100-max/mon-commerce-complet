@@ -1073,16 +1073,6 @@ app.post("/api/orders", async function (req, res) {
     ? paymentMethod
     : "cod";
 
-  if (
-    method !== "cod" &&
-    (!paymentReference || !paymentReference.trim())
-  ) {
-    return res.status(400).json({
-      error:
-        "Merci d'indiquer la référence de votre transaction Mobile Money.",
-    });
-  }
-
   const db = await readDB();
 
   /*

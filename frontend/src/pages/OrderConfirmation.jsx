@@ -251,9 +251,6 @@ function OrderConfirmation() {
                 : order.paymentMethod === "wave"
                 ? "Wave"
                 : "À la livraison"}
-              {order.paymentReference
-                ? " — Réf. " + order.paymentReference
-                : ""}
             </strong>
 
           </div>

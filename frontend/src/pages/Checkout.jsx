@@ -145,16 +145,6 @@ function Checkout() {
       return;
     }
 
-    if (
-      form.paymentMethod !== "cod" &&
-      !form.paymentReference.trim()
-    ) {
-      alert(
-        "Veuillez indiquer la référence de votre transaction Mobile Money."
-      );
-      return;
-    }
-
     setSubmitting(true);
 
     try {
@@ -454,7 +444,7 @@ function Checkout() {
                     <strong>Orange Money</strong>
                     <small>
                       {canPayByMobileMoney
-                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
+                        ? "Envoyez le montant, le commerçant vérifiera votre paiement."
                         : "Disponible uniquement pour une commande d'une seule boutique."}
                     </small>
                   </span>
@@ -486,7 +476,7 @@ function Checkout() {
                     <strong>Wave</strong>
                     <small>
                       {canPayByMobileMoney
-                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
+                        ? "Envoyez le montant, le commerçant vérifiera votre paiement."
                         : "Disponible uniquement pour une commande d'une seule boutique."}
                     </small>
                   </span>
@@ -518,19 +508,13 @@ function Checkout() {
                       "Ce commerçant n'a pas encore configuré son numéro Orange Money"}
                   </strong>
 
-                  <label htmlFor="paymentReference">
-                    Référence de la transaction *
-                  </label>
-
-                  <input
-                    id="paymentReference"
-                    name="paymentReference"
-                    type="text"
-                    value={form.paymentReference}
-                    onChange={handleChange}
-                    placeholder="Ex : OM240912.1234.A56789"
-                    required
-                  />
+                  <p className="payment-instructions-note">
+                    Une fois le paiement envoyé, clique sur
+                    "Confirmer la commande" ci-dessous. Le
+                    commerçant vérifiera la réception du
+                    paiement avec ton numéro de téléphone
+                    et l'heure de ta commande.
+                  </p>
 
                 </div>
               )}
@@ -558,19 +542,13 @@ function Checkout() {
                       "Ce commerçant n'a pas encore configuré son numéro Wave"}
                   </strong>
 
-                  <label htmlFor="paymentReference">
-                    Référence de la transaction *
-                  </label>
-
-                  <input
-                    id="paymentReference"
-                    name="paymentReference"
-                    type="text"
-                    value={form.paymentReference}
-                    onChange={handleChange}
-                    placeholder="Référence reçue par SMS"
-                    required
-                  />
+                  <p className="payment-instructions-note">
+                    Une fois le paiement envoyé, clique sur
+                    "Confirmer la commande" ci-dessous. Le
+                    commerçant vérifiera la réception du
+                    paiement avec ton numéro de téléphone
+                    et l'heure de ta commande.
+                  </p>
 
                 </div>
               )}

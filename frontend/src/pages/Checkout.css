@@ -367,3 +367,10 @@ align-self: flex-end;
 .payment-method-option.disabled:hover {
   border-color: var(--border, #e8ddc9);
 }
+
+.payment-instructions-note {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--ink-soft, #4a5468);
+  line-height: 1.5;
+}

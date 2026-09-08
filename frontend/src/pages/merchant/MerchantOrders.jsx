@@ -393,17 +393,21 @@ return (
                         : "Wave"}
                     </span>
 
-                    <span>
-                      Référence :{" "}
-                      <strong>
-                        {order.paymentReference ||
-                          "Non renseignée"}
-                      </strong>
-                    </span>
-
                     <small>
-                      Vérifie la réception de ce paiement
-                      avant de préparer la commande.
+                      Vérifie dans ton historique{" "}
+                      {order.paymentMethod ===
+                      "orange_money"
+                        ? "Orange Money"
+                        : "Wave"}{" "}
+                      qu'un paiement de{" "}
+                      {Number(order.total).toLocaleString(
+                        "fr-FR"
+                      )}{" "}
+                      F CFA est bien arrivé, en te basant
+                      sur le numéro de téléphone du client
+                      ({order.customer?.phone}) et l'heure
+                      de la commande, avant de préparer la
+                      commande.
                     </small>
 
                   </div>
