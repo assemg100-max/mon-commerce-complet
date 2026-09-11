@@ -186,7 +186,7 @@ function Checkout() {
         };
       });
 
-      const order = await createOrder({
+      const result = await createOrder({
         customer: {
           name: form.name.trim(),
           phone: form.phone.trim(),
@@ -206,8 +206,24 @@ function Checkout() {
       window.dispatchEvent(new Event("cartUpdated"));
       window.dispatchEvent(new Event("productsUpdated"));
 
+      /*
+       * Si le client a choisi le paiement en ligne
+       * PayDunya, on l'envoie directement vers la page
+       * de paiement sécurisée au lieu de la page de
+       * confirmation (il reviendra sur la confirmation
+       * une fois le paiement terminé).
+       */
+      if (
+        form.paymentMethod === "paydunya" &&
+        result.paydunyaPaymentUrl
+      ) {
+        window.location.href = result.paydunyaPaymentUrl;
+        return;
+      }
+
       navigate(
-        "/commande/confirmation/" + order.orderNumber
+        "/commande/confirmation/" +
+          result.order.orderNumber
       );
     } catch (error) {
       setSubmitError(error.message);
@@ -388,6 +404,38 @@ function Checkout() {
               </h2>
 
               <div className="payment-methods">
+
+                <label
+                  className={
+                    "payment-method-option" +
+                    (form.paymentMethod === "paydunya"
+                      ? " selected"
+                      : "")
+                  }
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="paydunya"
+                    checked={
+                      form.paymentMethod === "paydunya"
+                    }
+                    onChange={handleChange}
+                  />
+                  <span className="payment-method-icon">
+                    🔒
+                  </span>
+                  <span>
+                    <strong>
+                      Payer en ligne (Orange Money, Wave,
+                      Carte)
+                    </strong>
+                    <small>
+                      Paiement instantané et sécurisé,
+                      confirmation automatique — recommandé.
+                    </small>
+                  </span>
+                </label>
 
                 <label
                   className={

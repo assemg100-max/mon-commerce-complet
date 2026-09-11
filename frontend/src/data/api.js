@@ -263,8 +263,6 @@ export function createOrder(orderData) {
   return apiRequest("/orders", {
     method: "POST",
     body: JSON.stringify(orderData),
-  }).then(function (data) {
-    return data.order;
   });
 }
 
