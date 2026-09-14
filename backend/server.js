@@ -7,10 +7,9 @@ import crypto from "crypto";
 import { readDB, writeDB, getNextId } from "./db.js";
 import { sendEmail } from "./mailer.js";
 import {
-  createPayDunyaInvoice,
-  confirmPayDunyaInvoice,
-  isPayDunyaConfigured,
-} from "./paydunya.js";
+  creerPaiementPaytech,
+  verifierIpnPaytech,
+} from "./paytech.js";
 
 /*
  * =========================================================
@@ -109,9 +108,6 @@ function requireAdmin(req, res, next) {
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
-app.use(
-  express.urlencoded({ extended: true, limit: "10mb" })
-);
 
 
 /*
@@ -1075,12 +1071,28 @@ app.post("/api/orders", async function (req, res) {
     "cod",
     "orange_money",
     "wave",
-    "paydunya",
+    "paytech",
   ];
 
   const method = allowedMethods.includes(paymentMethod)
     ? paymentMethod
     : "cod";
+
+  /*
+   * Pour "paytech", pas besoin d'une référence saisie à la
+   * main : c'est PayTech qui confirme automatiquement le
+   * paiement via une notification IPN, traitée plus bas.
+   */
+  if (
+    method !== "cod" &&
+    method !== "paytech" &&
+    (!paymentReference || !paymentReference.trim())
+  ) {
+    return res.status(400).json({
+      error:
+        "Merci d'indiquer la référence de votre transaction Mobile Money.",
+    });
+  }
 
   const db = await readDB();
 
@@ -1149,80 +1161,13 @@ app.post("/api/orders", async function (req, res) {
     paymentStatus:
       method === "cod"
         ? "À encaisser à la livraison"
-        : method === "paydunya"
+        : method === "paytech"
         ? "En attente de paiement en ligne"
         : "À vérifier",
   };
 
   db.orders.push(newOrder);
   await writeDB(db);
-
-  /*
-   * Si le client a choisi PayDunya, on crée tout de
-   * suite la facture de paiement en ligne, et on
-   * renvoie le lien vers lequel le rediriger.
-   */
-  let paydunyaPaymentUrl = null;
-
-  if (method === "paydunya") {
-    if (!isPayDunyaConfigured()) {
-      return res.status(400).json({
-        error:
-          "Le paiement en ligne PayDunya n'est pas encore configuré sur ce site.",
-      });
-    }
-
-    try {
-      const frontendUrl =
-        process.env.FRONTEND_URL ||
-        "http://localhost:5173";
-
-      const backendUrl =
-        process.env.BACKEND_URL ||
-        "http://localhost:4000";
-
-      const invoice = await createPayDunyaInvoice({
-        orderNumber: newOrder.orderNumber,
-        amount: newOrder.total,
-        description:
-          "Commande " + newOrder.orderNumber,
-        customerName: newOrder.customer.name,
-        returnUrl:
-          frontendUrl +
-          "/commande/confirmation/" +
-          newOrder.orderNumber,
-        cancelUrl: frontendUrl + "/panier",
-        ipnUrl: backendUrl + "/api/paydunya/ipn",
-      });
-
-      paydunyaPaymentUrl = invoice.paymentUrl;
-
-      db.orders = db.orders.map(function (order) {
-        if (
-          order.orderNumber !== newOrder.orderNumber
-        ) {
-          return order;
-        }
-
-        return {
-          ...order,
-          paydunyaToken: invoice.token,
-        };
-      });
-
-      await writeDB(db);
-    } catch (error) {
-      console.error(
-        "Erreur lors de la création de la facture PayDunya :",
-        error
-      );
-
-      return res.status(500).json({
-        error:
-          "Impossible de préparer le paiement en ligne pour le moment. Merci de choisir un autre mode de paiement.",
-      });
-    }
-  }
 
   /*
    * L'envoi de l'email ne doit jamais empêcher la
@@ -1270,11 +1215,100 @@ app.post("/api/orders", async function (req, res) {
     });
   }
 
-  res.status(201).json({
-    order: newOrder,
-    paydunyaPaymentUrl,
-  });
+  res.status(201).json({ order: newOrder });
 });
+
+
+/* =========================================================
+   PAIEMENT EN LIGNE — PAYTECH
+   ========================================================= */
+
+/*
+ * Le frontend appelle cette route juste après avoir créé
+ * une commande avec paymentMethod = "paytech". On demande
+ * à PayTech un lien de paiement, et on le renvoie au
+ * frontend qui redirige le client dessus.
+ */
+app.post(
+  "/api/paiement/initier",
+  async function (req, res) {
+    const { orderNumber, montant, description } = req.body;
+
+    if (!orderNumber || !montant) {
+      return res.status(400).json({
+        error:
+          "orderNumber et montant sont obligatoires.",
+      });
+    }
+
+    try {
+      const paiement = await creerPaiementPaytech({
+        itemName:
+          description || "Commande " + orderNumber,
+        montant,
+        refCommande: orderNumber,
+        customField: { orderNumber },
+      });
+
+      res.json({ redirectUrl: paiement.redirect_url });
+    } catch (error) {
+      console.error(
+        "Erreur lors de la création du paiement PayTech :",
+        error.message
+      );
+
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+/*
+ * PayTech appelle cette route TOUT SEUL (le client ne la
+ * voit jamais) dès qu'un paiement est confirmé ou annulé.
+ * C'est ça qui remplace la saisie manuelle de référence.
+ */
+app.post(
+  "/api/paiement/ipn",
+  async function (req, res) {
+    const estAuthentique = verifierIpnPaytech(req.body);
+
+    if (!estAuthentique) {
+      console.error(
+        "IPN PayTech refusée : signature invalide.",
+        req.body
+      );
+
+      return res
+        .status(403)
+        .send("Signature invalide.");
+    }
+
+    const { type_event, ref_command } = req.body;
+
+    const db = await readDB();
+
+    const order = db.orders.find(function (item) {
+      return item.orderNumber === ref_command;
+    });
+
+    if (order) {
+      if (type_event === "sale_complete") {
+        order.paymentStatus = "Payé";
+      } else if (type_event === "sale_canceled") {
+        order.paymentStatus = "Annulé";
+      }
+
+      await writeDB(db);
+    } else {
+      console.error(
+        "IPN PayTech reçue pour une commande inconnue :",
+        ref_command
+      );
+    }
+
+    res.status(200).send("IPN OK");
+  }
+);
 
 
 app.get("/api/orders/:orderNumber", async function (req, res) {
@@ -1743,111 +1777,6 @@ app.put("/api/admin/settings", requireAdmin, async function (req, res) {
 /* =========================================================
    DÉMARRAGE DU SERVEUR
    ========================================================= */
-
-/* =========================================================
-   PAYDUNYA — CONFIRMATION AUTOMATIQUE DE PAIEMENT (IPN)
-   ========================================================= */
-
-/*
- * PayDunya appelle cette adresse automatiquement quand un
- * client termine un paiement. On ne fait JAMAIS confiance
- * directement à ce que PayDunya nous envoie ici : on
- * revérifie systématiquement auprès de PayDunya lui-même
- * (confirmPayDunyaInvoice) avant de valider quoi que ce
- * soit, pour éviter qu'une personne malveillante puisse
- * simuler une fausse confirmation de paiement.
- */
-app.post("/api/paydunya/ipn", async function (req, res) {
-  try {
-    const rawData = req.body.data;
-
-    if (!rawData) {
-      return res.status(400).send("Données manquantes.");
-    }
-
-    const parsedData =
-      typeof rawData === "string"
-        ? JSON.parse(rawData)
-        : rawData;
-
-    const token = parsedData.invoice_token;
-
-    if (!token) {
-      return res.status(400).send("Jeton manquant.");
-    }
-
-    const confirmation = await confirmPayDunyaInvoice(
-      token
-    );
-
-    if (!confirmation.isCompleted) {
-      return res.status(200).send("Paiement non confirmé.");
-    }
-
-    const db = await readDB();
-
-    const order = db.orders.find(function (item) {
-      return (
-        item.paydunyaToken === token ||
-        item.orderNumber === confirmation.orderNumber
-      );
-    });
-
-    if (!order) {
-      console.error(
-        "Commande introuvable pour le jeton PayDunya :",
-        token
-      );
-
-      return res.status(404).send("Commande introuvable.");
-    }
-
-    const updatedOrder = {
-      ...order,
-      paymentStatus: "Payé",
-    };
-
-    db.orders = db.orders.map(function (item) {
-      return item.orderNumber === order.orderNumber
-        ? updatedOrder
-        : item;
-    });
-
-    await writeDB(db);
-
-    if (updatedOrder.customer.email) {
-      sendEmail({
-        to: updatedOrder.customer.email,
-        subject:
-          "Paiement confirmé pour votre commande " +
-          updatedOrder.orderNumber +
-          " — Mon Commerce Sénégal",
-        html:
-          "<p>Bonjour " +
-          updatedOrder.customer.name +
-          ",</p>" +
-          "<p>Votre paiement en ligne pour la commande <strong>" +
-          updatedOrder.orderNumber +
-          "</strong> a bien été reçu. Le commerçant va maintenant préparer votre commande.</p>",
-      }).catch(function (error) {
-        console.error(
-          "Erreur lors de l'envoi de l'email de paiement confirmé :",
-          error
-        );
-      });
-    }
-
-    res.status(200).send("OK");
-  } catch (error) {
-    console.error(
-      "Erreur lors du traitement de l'IPN PayDunya :",
-      error
-    );
-
-    res.status(500).send("Erreur serveur.");
-  }
-});
-
 
 app.listen(PORT, function () {
   console.log(

@@ -5,6 +5,7 @@ import {
   getShops,
   getProducts,
   createOrder,
+  initierPaiementPaytech,
 } from "../data/api";
 
 import PageTitle from "../components/PageTitle";
@@ -145,6 +146,17 @@ function Checkout() {
       return;
     }
 
+    if (
+      form.paymentMethod !== "cod" &&
+      form.paymentMethod !== "paytech" &&
+      !form.paymentReference.trim()
+    ) {
+      alert(
+        "Veuillez indiquer la référence de votre transaction Mobile Money."
+      );
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -186,7 +198,7 @@ function Checkout() {
         };
       });
 
-      const result = await createOrder({
+      const order = await createOrder({
         customer: {
           name: form.name.trim(),
           phone: form.phone.trim(),
@@ -207,23 +219,25 @@ function Checkout() {
       window.dispatchEvent(new Event("productsUpdated"));
 
       /*
-       * Si le client a choisi le paiement en ligne
-       * PayDunya, on l'envoie directement vers la page
-       * de paiement sécurisée au lieu de la page de
-       * confirmation (il reviendra sur la confirmation
-       * une fois le paiement terminé).
+       * Pour PayTech, on ne va pas directement à la page
+       * de confirmation : on redirige d'abord le client
+       * vers PayTech pour qu'il paie réellement. C'est
+       * PayTech qui le renverra ensuite sur la page de
+       * confirmation (via success_url) une fois payé.
        */
-      if (
-        form.paymentMethod === "paydunya" &&
-        result.paydunyaPaymentUrl
-      ) {
-        window.location.href = result.paydunyaPaymentUrl;
+      if (form.paymentMethod === "paytech") {
+        const { redirectUrl } = await initierPaiementPaytech(
+          order.orderNumber,
+          total,
+          "Commande " + order.orderNumber
+        );
+
+        window.location.href = redirectUrl;
         return;
       }
 
       navigate(
-        "/commande/confirmation/" +
-          result.order.orderNumber
+        "/commande/confirmation/" + order.orderNumber
       );
     } catch (error) {
       setSubmitError(error.message);
@@ -408,7 +422,7 @@ function Checkout() {
                 <label
                   className={
                     "payment-method-option" +
-                    (form.paymentMethod === "paydunya"
+                    (form.paymentMethod === "paytech"
                       ? " selected"
                       : "")
                   }
@@ -416,23 +430,19 @@ function Checkout() {
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="paydunya"
-                    checked={
-                      form.paymentMethod === "paydunya"
-                    }
+                    value="paytech"
+                    checked={form.paymentMethod === "paytech"}
                     onChange={handleChange}
                   />
                   <span className="payment-method-icon">
-                    🔒
+                    💳
                   </span>
                   <span>
-                    <strong>
-                      Payer en ligne (Orange Money, Wave,
-                      Carte)
-                    </strong>
+                    <strong>Payer en ligne maintenant</strong>
                     <small>
-                      Paiement instantané et sécurisé,
-                      confirmation automatique — recommandé.
+                      Orange Money, Wave, Free Money ou carte
+                      bancaire — paiement sécurisé et
+                      confirmé automatiquement.
                     </small>
                   </span>
                 </label>
@@ -492,7 +502,7 @@ function Checkout() {
                     <strong>Orange Money</strong>
                     <small>
                       {canPayByMobileMoney
-                        ? "Envoyez le montant, le commerçant vérifiera votre paiement."
+                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
                         : "Disponible uniquement pour une commande d'une seule boutique."}
                     </small>
                   </span>
@@ -524,7 +534,7 @@ function Checkout() {
                     <strong>Wave</strong>
                     <small>
                       {canPayByMobileMoney
-                        ? "Envoyez le montant, le commerçant vérifiera votre paiement."
+                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
                         : "Disponible uniquement pour une commande d'une seule boutique."}
                     </small>
                   </span>
@@ -556,13 +566,19 @@ function Checkout() {
                       "Ce commerçant n'a pas encore configuré son numéro Orange Money"}
                   </strong>
 
-                  <p className="payment-instructions-note">
-                    Une fois le paiement envoyé, clique sur
-                    "Confirmer la commande" ci-dessous. Le
-                    commerçant vérifiera la réception du
-                    paiement avec ton numéro de téléphone
-                    et l'heure de ta commande.
-                  </p>
+                  <label htmlFor="paymentReference">
+                    Référence de la transaction *
+                  </label>
+
+                  <input
+                    id="paymentReference"
+                    name="paymentReference"
+                    type="text"
+                    value={form.paymentReference}
+                    onChange={handleChange}
+                    placeholder="Ex : OM240912.1234.A56789"
+                    required
+                  />
 
                 </div>
               )}
@@ -590,13 +606,19 @@ function Checkout() {
                       "Ce commerçant n'a pas encore configuré son numéro Wave"}
                   </strong>
 
-                  <p className="payment-instructions-note">
-                    Une fois le paiement envoyé, clique sur
-                    "Confirmer la commande" ci-dessous. Le
-                    commerçant vérifiera la réception du
-                    paiement avec ton numéro de téléphone
-                    et l'heure de ta commande.
-                  </p>
+                  <label htmlFor="paymentReference">
+                    Référence de la transaction *
+                  </label>
+
+                  <input
+                    id="paymentReference"
+                    name="paymentReference"
+                    type="text"
+                    value={form.paymentReference}
+                    onChange={handleChange}
+                    placeholder="Référence reçue par SMS"
+                    required
+                  />
 
                 </div>
               )}

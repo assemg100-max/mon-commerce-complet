@@ -263,6 +263,25 @@ export function createOrder(orderData) {
   return apiRequest("/orders", {
     method: "POST",
     body: JSON.stringify(orderData),
+  }).then(function (data) {
+    return data.order;
+  });
+}
+
+/*
+ * Demande au backend un lien de paiement PayTech pour une
+ * commande déjà créée, puis renvoie ce lien. C'est le
+ * composant Checkout qui redirige ensuite le navigateur
+ * dessus (window.location.href = redirectUrl).
+ */
+export function initierPaiementPaytech(orderNumber, montant, description) {
+  return apiRequest("/paiement/initier", {
+    method: "POST",
+    body: JSON.stringify({
+      orderNumber,
+      montant,
+      description,
+    }),
   });
 }
 
