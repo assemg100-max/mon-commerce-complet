@@ -563,6 +563,10 @@ return (
                     Expédiée
                   </option>
 
+                  <option value="En livraison">
+                    En livraison
+                  </option>
+
                   <option value="Livrée">
                     Livrée
                   </option>

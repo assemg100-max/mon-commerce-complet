@@ -261,3 +261,77 @@ width: 100%;
 box-sizing: border-box;
 }
 }
+
+.delivery-tracker {
+  margin: 20px 0;
+  padding: 16px;
+  background: #f8f9fb;
+  border-radius: 10px;
+}
+
+.delivery-tracker h3 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+}
+
+.delivery-tracker-steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+}
+
+.delivery-tracker-steps::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 5%;
+  right: 5%;
+  height: 3px;
+  background: #dbe0e8;
+  z-index: 0;
+}
+
+.delivery-tracker-step {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+}
+
+.delivery-tracker-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #dbe0e8;
+  border: 3px solid #f8f9fb;
+  margin-bottom: 6px;
+}
+
+.delivery-tracker-step.reached .delivery-tracker-dot {
+  background: #16a34a;
+}
+
+.delivery-tracker-step.current .delivery-tracker-dot {
+  background: #16a34a;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.25);
+}
+
+.delivery-tracker-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.delivery-tracker-step.reached .delivery-tracker-label {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .delivery-tracker-label {
+    font-size: 0.65rem;
+  }
+}

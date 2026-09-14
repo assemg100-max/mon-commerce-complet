@@ -1416,6 +1416,26 @@ app.put(
     await writeDB(db);
 
     /*
+     * Message personnalisé envoyé au client selon la
+     * nouvelle étape de sa commande — plus clair qu'un
+     * simple mot affiché tout seul.
+     */
+    const messagesParStatut = {
+      "Confirmée":
+        "Bonne nouvelle : votre commande a été confirmée par le vendeur ! Elle va bientôt être préparée.",
+      "En préparation":
+        "Votre commande est en cours de préparation. Elle sera bientôt expédiée.",
+      "Expédiée":
+        "Votre commande a été expédiée ! Elle est en route vers le livreur.",
+      "En livraison":
+        "Votre commande est en cours de livraison. Le livreur devrait vous contacter très bientôt.",
+      "Livrée":
+        "Votre commande a été livrée. Merci pour votre confiance, et à bientôt sur Mon Commerce Sénégal !",
+      "Annulée":
+        "Votre commande a malheureusement été annulée. Si vous aviez déjà payé, vous serez remboursé rapidement.",
+    };
+
+    /*
      * Si le statut a réellement changé, on prévient
      * le client par email (sans jamais bloquer la
      * réponse si l'envoi échoue).
@@ -1426,6 +1446,10 @@ app.put(
       updatedOrder.customer &&
       updatedOrder.customer.email
     ) {
+      const messagePersonnalise =
+        messagesParStatut[safeUpdates.status] ||
+        "Le statut de votre commande a été mis à jour.";
+
       sendEmail({
         to: updatedOrder.customer.email,
         subject:
@@ -1436,11 +1460,14 @@ app.put(
           "<p>Bonjour " +
           updatedOrder.customer.name +
           ",</p>" +
-          "<p>Le statut de votre commande <strong>" +
-          updatedOrder.orderNumber +
-          "</strong> a changé :</p>" +
           "<p style=\"font-size: 18px;\"><strong>" +
           safeUpdates.status +
+          "</strong></p>" +
+          "<p>" +
+          messagePersonnalise +
+          "</p>" +
+          "<p>Numéro de commande : <strong>" +
+          updatedOrder.orderNumber +
           "</strong></p>" +
           "<p>Merci de votre confiance !</p>",
       }).catch(function (error) {

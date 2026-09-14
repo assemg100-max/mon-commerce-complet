@@ -239,6 +239,71 @@ function OrderConfirmation() {
 
           </div>
 
+          {order.status !== "Annulée" && (
+            <div className="delivery-tracker">
+
+              <h3>
+                Suivi de la livraison
+              </h3>
+
+              <div className="delivery-tracker-steps">
+
+                {[
+                  "Confirmée",
+                  "En préparation",
+                  "Expédiée",
+                  "En livraison",
+                  "Livrée",
+                ].map(function (etape, index) {
+
+                  const etapes = [
+                    "Confirmée",
+                    "En préparation",
+                    "Expédiée",
+                    "En livraison",
+                    "Livrée",
+                  ];
+
+                  const etapeActuelle =
+                    etapes.indexOf(
+                      order.status
+                    );
+
+                  const estAtteinte =
+                    etapeActuelle >= index;
+
+                  const estActuelle =
+                    etapeActuelle === index;
+
+                  return (
+                    <div
+                      className={
+                        "delivery-tracker-step" +
+                        (estAtteinte
+                          ? " reached"
+                          : "") +
+                        (estActuelle
+                          ? " current"
+                          : "")
+                      }
+                      key={etape}
+                    >
+
+                      <span className="delivery-tracker-dot" />
+
+                      <span className="delivery-tracker-label">
+                        {etape}
+                      </span>
+
+                    </div>
+                  );
+                })}
+
+              </div>
+
+            </div>
+          )}
+
           <div className="confirmation-status">
 
             <span>
@@ -246,11 +311,16 @@ function OrderConfirmation() {
             </span>
 
             <strong>
-              {order.paymentMethod === "orange_money"
+              {order.paymentMethod === "paytech"
+                ? "Paiement en ligne (PayTech)"
+                : order.paymentMethod === "orange_money"
                 ? "Orange Money"
                 : order.paymentMethod === "wave"
                 ? "Wave"
                 : "À la livraison"}
+              {order.paymentReference
+                ? " — Réf. " + order.paymentReference
+                : ""}
             </strong>
 
           </div>
