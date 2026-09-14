@@ -1375,7 +1375,7 @@ app.put(
      * On ne permet de modifier que le statut, jamais le
      * montant, les produits ou les infos client.
      */
-    const allowedFields = ["status"];
+    const allowedFields = ["status", "refundStatus"];
 
     const safeUpdates = {};
 
@@ -1384,6 +1384,26 @@ app.put(
         safeUpdates[field] = req.body[field];
       }
     });
+
+    /*
+     * Si une commande DÉJÀ PAYÉE en ligne (PayTech) est
+     * annulée, PayTech ne propose pas d'API de remboursement
+     * automatique : il faut renvoyer l'argent nous-mêmes au
+     * client (Orange Money/Wave) ou contacter le support
+     * PayTech pour une carte bancaire. On marque donc la
+     * commande "À rembourser" pour ne pas l'oublier.
+     */
+    const passeEnAnnulee =
+      safeUpdates.status === "Annulée" &&
+      order.status !== "Annulée";
+
+    if (
+      passeEnAnnulee &&
+      order.paymentMethod === "paytech" &&
+      order.paymentStatus === "Payé"
+    ) {
+      safeUpdates.refundStatus = "À rembourser";
+    }
 
     const updatedOrder = { ...order, ...safeUpdates };
 

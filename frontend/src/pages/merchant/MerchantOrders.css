@@ -274,3 +274,37 @@
   color: var(--ink-soft, #4a5468);
   margin-top: 2px;
 }
+
+.merchant-order-refund-alert {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fff4e5;
+  border: 1px solid #f0b95c;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+}
+
+.merchant-order-refund-alert button {
+  align-self: flex-start;
+  background: #d97706;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.merchant-order-refund-alert button:hover {
+  background: #b45309;
+}
+
+.merchant-order-refund-done {
+  color: #15803d;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+

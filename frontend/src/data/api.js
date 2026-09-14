@@ -310,6 +310,21 @@ export function updateOrderStatus(orderNumber, status) {
   });
 }
 
+/*
+ * Marque une commande comme remboursée, une fois que TOI
+ * (le commerçant/la plateforme) as réellement renvoyé
+ * l'argent au client via Orange Money/Wave, ou que PayTech
+ * a confirmé le remboursement d'une carte bancaire.
+ */
+export function marquerCommandeRemboursee(orderNumber) {
+  return apiRequest("/orders/" + orderNumber, {
+    method: "PUT",
+    body: JSON.stringify({ refundStatus: "Remboursé" }),
+  }).then(function (data) {
+    return data.order;
+  });
+}
+
 
 /* =========================================================
    FILTRES PRODUITS

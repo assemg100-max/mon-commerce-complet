@@ -5,6 +5,7 @@ import {
   getShopByOwner,
   getOrdersByShop,
   updateOrderStatus as updateOrderStatusApi,
+  marquerCommandeRemboursee,
 } from "../../data/api";
 
 import "./MerchantOrders.css";
@@ -138,6 +139,29 @@ function updateOrderStatus(orderNumber, newStatus) {
     .catch(function (error) {
       console.error(
         "Erreur statut commande :",
+        error
+      );
+    });
+}
+
+function marquerRembourse(orderNumber) {
+  const confirme = window.confirm(
+    "Confirmes-tu avoir renvoyé l'argent au client (Orange Money/Wave) ou que PayTech a validé le remboursement de sa carte ?"
+  );
+
+  if (!confirme) {
+    return;
+  }
+
+  marquerCommandeRemboursee(orderNumber)
+    .then(function () {
+      if (shopId) {
+        loadOrders(shopId);
+      }
+    })
+    .catch(function (error) {
+      console.error(
+        "Erreur remboursement commande :",
         error
       );
     });
@@ -393,21 +417,17 @@ return (
                         : "Wave"}
                     </span>
 
+                    <span>
+                      Référence :{" "}
+                      <strong>
+                        {order.paymentReference ||
+                          "Non renseignée"}
+                      </strong>
+                    </span>
+
                     <small>
-                      Vérifie dans ton historique{" "}
-                      {order.paymentMethod ===
-                      "orange_money"
-                        ? "Orange Money"
-                        : "Wave"}{" "}
-                      qu'un paiement de{" "}
-                      {Number(order.total).toLocaleString(
-                        "fr-FR"
-                      )}{" "}
-                      F CFA est bien arrivé, en te basant
-                      sur le numéro de téléphone du client
-                      ({order.customer?.phone}) et l'heure
-                      de la commande, avant de préparer la
-                      commande.
+                      Vérifie la réception de ce paiement
+                      avant de préparer la commande.
                     </small>
 
                   </div>
@@ -463,6 +483,41 @@ return (
               </div>
 
               <div className="merchant-order-actions">
+
+                {order.refundStatus === "À rembourser" && (
+                  <div className="merchant-order-refund-alert">
+                    <span>
+                      ⚠️ Cette commande était payée en
+                      ligne et a été annulée — pense à
+                      renvoyer{" "}
+                      {Math.round(
+                        total
+                      ).toLocaleString("fr-FR")}{" "}
+                      F CFA au client (
+                      {order.customer &&
+                        order.customer.phone}
+                      ) via Orange Money/Wave, ou à
+                      contacter PayTech pour une carte.
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={function () {
+                        marquerRembourse(
+                          order.orderNumber
+                        );
+                      }}
+                    >
+                      Marquer comme remboursé
+                    </button>
+                  </div>
+                )}
+
+                {order.refundStatus === "Remboursé" && (
+                  <p className="merchant-order-refund-done">
+                    ✅ Client remboursé
+                  </p>
+                )}
 
                 <label
                   htmlFor={
