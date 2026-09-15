@@ -320,3 +320,46 @@ align-self: center;
 margin: 40px auto;
 }
 }
+
+.cart-coupon-form {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.cart-coupon-form input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #d5d9e0;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.cart-coupon-form button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  background: #0e7c74;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cart-coupon-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cart-coupon-error {
+  color: #b91c1c;
+  font-size: 0.85em;
+  margin: -6px 0 10px 0;
+}
+
+.cart-coupon-success {
+  color: #15803d;
+  font-size: 0.85em;
+  margin: -6px 0 10px 0;
+  font-weight: 600;
+}

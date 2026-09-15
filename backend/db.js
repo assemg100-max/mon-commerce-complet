@@ -145,6 +145,8 @@ const initialData = {
   reviews: [],
 
   favorites: [],
+
+  coupons: [],
 };
 
 
@@ -184,6 +186,11 @@ function applyMigrations(data) {
 
   if (!Array.isArray(data.favorites)) {
     data.favorites = [];
+    changed = true;
+  }
+
+  if (!Array.isArray(data.coupons)) {
+    data.coupons = [];
     changed = true;
   }
 

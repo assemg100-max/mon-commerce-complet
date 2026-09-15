@@ -1,0 +1,107 @@
+.merchant-coupons-page {
+  padding: 24px 16px 60px 16px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.merchant-coupons-container h1 {
+  margin-bottom: 4px;
+}
+
+.merchant-coupons-intro {
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.merchant-coupon-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+  background: #f8f9fb;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.merchant-coupon-form div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.merchant-coupon-form input,
+.merchant-coupon-form select {
+  padding: 8px 10px;
+  border: 1px solid #d5d9e0;
+  border-radius: 6px;
+}
+
+.merchant-coupon-form button {
+  padding: 9px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #0e7c74;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.merchant-coupon-error {
+  color: #b91c1c;
+  margin: 0 0 16px 0;
+}
+
+.merchant-coupons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.merchant-coupon-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.merchant-coupon-card.inactive {
+  opacity: 0.55;
+}
+
+.merchant-coupon-card > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.merchant-coupon-status {
+  font-size: 0.8em;
+  background: #eef2ff;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.merchant-coupon-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.merchant-coupon-actions button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #d5d9e0;
+  background: white;
+  cursor: pointer;
+}
+
+.merchant-coupon-actions button.delete {
+  color: #b91c1c;
+  border-color: #fca5a5;
+}

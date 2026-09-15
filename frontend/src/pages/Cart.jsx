@@ -2,14 +2,31 @@
 import { useEffect, useState } from "react";
 
 import PageTitle from "../components/PageTitle";
+import { verifierCodePromo } from "../data/api";
 
 import "./Cart.css";
 
 function Cart() {
 const [cart, setCart] = useState([]);
+const [couponInput, setCouponInput] = useState("");
+const [appliedCoupon, setAppliedCoupon] = useState(null);
+const [couponError, setCouponError] = useState("");
+const [checkingCoupon, setCheckingCoupon] = useState(false);
 
 useEffect(() => {
 loadCart();
+
+const savedCoupon = localStorage.getItem(
+  "mon-commerce-coupon"
+);
+
+if (savedCoupon) {
+  try {
+    setAppliedCoupon(JSON.parse(savedCoupon));
+  } catch (error) {
+    localStorage.removeItem("mon-commerce-coupon");
+  }
+}
 
 function handleCartUpdated() {
   loadCart();
@@ -196,6 +213,78 @@ Number(product.price) || 0;
   },
   0
 );
+
+/*
+ * Les codes promo ne fonctionnent aujourd'hui que si TOUS
+ * les produits du panier viennent de la même boutique
+ * (un code appartient à une seule boutique).
+ */
+const shopIdsDuPanier = [
+  ...new Set(
+    cart.map(function (product) {
+      return product.shopId;
+    })
+  ),
+];
+
+const panierMultiBoutiques = shopIdsDuPanier.length > 1;
+
+function handleApplyCoupon(event) {
+  event.preventDefault();
+
+  setCouponError("");
+
+  if (panierMultiBoutiques) {
+    setCouponError(
+      "Les codes promo ne fonctionnent que si tous les produits viennent de la même boutique."
+    );
+    return;
+  }
+
+  if (!couponInput.trim()) {
+    return;
+  }
+
+  setCheckingCoupon(true);
+
+  verifierCodePromo(
+    couponInput.trim(),
+    shopIdsDuPanier[0]
+  )
+    .then(function (coupon) {
+      setAppliedCoupon(coupon);
+
+      localStorage.setItem(
+        "mon-commerce-coupon",
+        JSON.stringify(coupon)
+      );
+
+      setCouponInput("");
+    })
+    .catch(function () {
+      setCouponError(
+        "Ce code promo n'est pas valide pour cette boutique."
+      );
+    })
+    .finally(function () {
+      setCheckingCoupon(false);
+    });
+}
+
+function handleRemoveCoupon() {
+  setAppliedCoupon(null);
+  localStorage.removeItem("mon-commerce-coupon");
+}
+
+const reduction = !appliedCoupon
+  ? 0
+  : appliedCoupon.type === "percent"
+  ? Math.round(
+      (total * appliedCoupon.value) / 100
+    )
+  : Math.min(appliedCoupon.value, total);
+
+const totalApresReduction = total - reduction;
 
 if (cart.length === 0) {
 return (
@@ -428,6 +517,73 @@ return (
 
         </div>
 
+        <form
+          className="cart-coupon-form"
+          onSubmit={handleApplyCoupon}
+        >
+
+          <input
+            type="text"
+            placeholder="Code promo"
+            value={couponInput}
+            onChange={function (event) {
+              setCouponInput(
+                event.target.value
+              );
+            }}
+            disabled={
+              Boolean(appliedCoupon) ||
+              checkingCoupon
+            }
+          />
+
+          {appliedCoupon ? (
+            <button
+              type="button"
+              onClick={handleRemoveCoupon}
+            >
+              Retirer
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={checkingCoupon}
+            >
+              {checkingCoupon
+                ? "..."
+                : "Appliquer"}
+            </button>
+          )}
+
+        </form>
+
+        {couponError && (
+          <p className="cart-coupon-error">
+            {couponError}
+          </p>
+        )}
+
+        {appliedCoupon && (
+          <p className="cart-coupon-success">
+            ✅ Code "{appliedCoupon.code}" appliqué
+          </p>
+        )}
+
+        {reduction > 0 && (
+          <div className="cart-summary-line">
+
+            <span>
+              Réduction
+            </span>
+
+            <span>
+              − {reduction.toLocaleString("fr-FR")}{" "}
+              F CFA
+            </span>
+
+          </div>
+        )}
+
         <div className="cart-summary-total">
 
           <span>
@@ -435,7 +591,7 @@ return (
           </span>
 
           <strong>
-            {total.toLocaleString(
+            {totalApresReduction.toLocaleString(
               "fr-FR"
             )}{" "}
             F CFA

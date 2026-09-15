@@ -1014,6 +1014,230 @@ app.delete(
 
 
 /* =========================================================
+   CODES PROMO
+   ========================================================= */
+
+/*
+ * Le commerçant crée un code promo pour SA boutique.
+ * type: "percent" (ex: 10 = -10%) ou "fixed" (ex: 2000 = -2000 FCFA)
+ */
+app.post(
+  "/api/coupons",
+  requireAuth,
+  async function (req, res) {
+    const { code, type, value, shopId } = req.body;
+
+    if (!code || !type || !value || !shopId) {
+      return res.status(400).json({
+        error:
+          "code, type, value et shopId sont obligatoires.",
+      });
+    }
+
+    if (type !== "percent" && type !== "fixed") {
+      return res.status(400).json({
+        error:
+          "Le type doit être \"percent\" ou \"fixed\".",
+      });
+    }
+
+    const db = await readDB();
+
+    const shop = db.shops.find(function (item) {
+      return Number(item.id) === Number(shopId);
+    });
+
+    const estProprietaire =
+      shop &&
+      shop.ownerId &&
+      Number(shop.ownerId) === Number(req.user.id);
+
+    if (!estProprietaire) {
+      return res.status(403).json({
+        error:
+          "Cette boutique ne vous appartient pas.",
+      });
+    }
+
+    const codeNormalise = code.trim().toUpperCase();
+
+    const codeExisteDeja = db.coupons.some(function (item) {
+      return (
+        item.code === codeNormalise &&
+        Number(item.shopId) === Number(shopId)
+      );
+    });
+
+    if (codeExisteDeja) {
+      return res.status(409).json({
+        error:
+          "Ce code existe déjà pour cette boutique.",
+      });
+    }
+
+    const newCoupon = {
+      id: getNextId(db.coupons),
+      code: codeNormalise,
+      type,
+      value: Number(value),
+      shopId: Number(shopId),
+      active: true,
+      createdAt: new Date().toISOString(),
+    };
+
+    db.coupons.push(newCoupon);
+    await writeDB(db);
+
+    res.status(201).json({ coupon: newCoupon });
+  }
+);
+
+/*
+ * Liste les codes promo d'une boutique (espace commerçant).
+ */
+app.get("/api/coupons", async function (req, res) {
+  const db = await readDB();
+
+  let coupons = db.coupons;
+
+  if (req.query.shopId) {
+    const shopId = Number(req.query.shopId);
+
+    coupons = coupons.filter(function (item) {
+      return Number(item.shopId) === shopId;
+    });
+  }
+
+  res.json({ coupons });
+});
+
+/*
+ * Active/désactive un code promo (le commerçant peut le
+ * couper sans le supprimer).
+ */
+app.put(
+  "/api/coupons/:id",
+  requireAuth,
+  async function (req, res) {
+    const db = await readDB();
+
+    const coupon = db.coupons.find(function (item) {
+      return Number(item.id) === Number(req.params.id);
+    });
+
+    if (!coupon) {
+      return res.status(404).json({
+        error: "Code promo introuvable.",
+      });
+    }
+
+    const shop = db.shops.find(function (item) {
+      return Number(item.id) === Number(coupon.shopId);
+    });
+
+    const estProprietaire =
+      shop &&
+      shop.ownerId &&
+      Number(shop.ownerId) === Number(req.user.id);
+
+    if (!estProprietaire) {
+      return res.status(403).json({
+        error:
+          "Cette boutique ne vous appartient pas.",
+      });
+    }
+
+    if (req.body.active !== undefined) {
+      coupon.active = Boolean(req.body.active);
+    }
+
+    await writeDB(db);
+
+    res.json({ coupon });
+  }
+);
+
+app.delete(
+  "/api/coupons/:id",
+  requireAuth,
+  async function (req, res) {
+    const db = await readDB();
+
+    const coupon = db.coupons.find(function (item) {
+      return Number(item.id) === Number(req.params.id);
+    });
+
+    if (!coupon) {
+      return res.status(404).json({
+        error: "Code promo introuvable.",
+      });
+    }
+
+    const shop = db.shops.find(function (item) {
+      return Number(item.id) === Number(coupon.shopId);
+    });
+
+    const estProprietaire =
+      shop &&
+      shop.ownerId &&
+      Number(shop.ownerId) === Number(req.user.id);
+
+    if (!estProprietaire) {
+      return res.status(403).json({
+        error:
+          "Cette boutique ne vous appartient pas.",
+      });
+    }
+
+    db.coupons = db.coupons.filter(function (item) {
+      return Number(item.id) !== Number(req.params.id);
+    });
+
+    await writeDB(db);
+
+    res.json({ success: true });
+  }
+);
+
+/*
+ * Le client tape un code dans son panier : on vérifie
+ * qu'il existe, qu'il est actif, et qu'il correspond bien
+ * à la boutique concernée, puis on renvoie la réduction.
+ */
+app.post(
+  "/api/coupons/verifier",
+  async function (req, res) {
+    const { code, shopId } = req.body;
+
+    if (!code || !shopId) {
+      return res.status(400).json({
+        error: "code et shopId sont obligatoires.",
+      });
+    }
+
+    const db = await readDB();
+
+    const codeNormalise = code.trim().toUpperCase();
+
+    const coupon = db.coupons.find(function (item) {
+      return (
+        item.code === codeNormalise &&
+        Number(item.shopId) === Number(shopId)
+      );
+    });
+
+    if (!coupon || !coupon.active) {
+      return res.status(404).json({
+        error: "Code promo invalide ou expiré.",
+      });
+    }
+
+    res.json({ coupon });
+  }
+);
+
+
+/* =========================================================
    COMMANDES
    ========================================================= */
 
@@ -1054,6 +1278,8 @@ app.post("/api/orders", async function (req, res) {
     total,
     paymentMethod,
     paymentReference,
+    couponCode,
+    discount,
   } = req.body;
 
   if (
@@ -1151,6 +1377,8 @@ app.post("/api/orders", async function (req, res) {
     customer,
     products,
     total: orderTotal,
+    couponCode: couponCode || "",
+    discount: Number(discount) || 0,
     status: "En attente",
     createdAt: new Date().toISOString(),
     commissionRate,

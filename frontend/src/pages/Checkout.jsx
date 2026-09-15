@@ -114,6 +114,30 @@ function Checkout() {
     return sum + price * quantity;
   }, 0);
 
+  const [appliedCoupon] = useState(function () {
+    const saved = localStorage.getItem(
+      "mon-commerce-coupon"
+    );
+
+    if (!saved) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(saved);
+    } catch (error) {
+      return null;
+    }
+  });
+
+  const reduction = !appliedCoupon
+    ? 0
+    : appliedCoupon.type === "percent"
+    ? Math.round((total * appliedCoupon.value) / 100)
+    : Math.min(appliedCoupon.value, total);
+
+  const totalFinal = total - reduction;
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -208,13 +232,18 @@ function Checkout() {
           email: customerEmail,
         },
         products: orderProducts,
-        total,
+        total: totalFinal,
         totalProducts,
         paymentMethod: form.paymentMethod,
         paymentReference: form.paymentReference.trim(),
+        couponCode: appliedCoupon
+          ? appliedCoupon.code
+          : "",
+        discount: reduction,
       });
 
       localStorage.removeItem("mon-commerce-cart");
+      localStorage.removeItem("mon-commerce-coupon");
       window.dispatchEvent(new Event("cartUpdated"));
       window.dispatchEvent(new Event("productsUpdated"));
 
@@ -228,7 +257,7 @@ function Checkout() {
       if (form.paymentMethod === "paytech") {
         const { redirectUrl } = await initierPaiementPaytech(
           order.orderNumber,
-          total,
+          totalFinal,
           "Commande " + order.orderNumber
         );
 
@@ -548,7 +577,7 @@ function Checkout() {
                   <p>
                     Envoyez{" "}
                     <strong>
-                      {total.toLocaleString("fr-FR")}{" "}
+                      {totalFinal.toLocaleString("fr-FR")}{" "}
                       F CFA
                     </strong>{" "}
                     via Orange Money directement à{" "}
@@ -589,7 +618,7 @@ function Checkout() {
                   <p>
                     Envoyez{" "}
                     <strong>
-                      {total.toLocaleString("fr-FR")}{" "}
+                      {totalFinal.toLocaleString("fr-FR")}{" "}
                       F CFA
                     </strong>{" "}
                     via Wave directement à{" "}
@@ -703,6 +732,21 @@ function Checkout() {
 
             </div>
 
+            {reduction > 0 && (
+              <div className="checkout-summary-line">
+
+                <span>
+                  Réduction ({appliedCoupon.code})
+                </span>
+
+                <span>
+                  − {reduction.toLocaleString("fr-FR")}{" "}
+                  F CFA
+                </span>
+
+              </div>
+            )}
+
             <div className="checkout-summary-total">
 
               <span>
@@ -710,7 +754,7 @@ function Checkout() {
               </span>
 
               <strong>
-                {total.toLocaleString("fr-FR")}{" "}
+                {totalFinal.toLocaleString("fr-FR")}{" "}
                 F CFA
               </strong>
 

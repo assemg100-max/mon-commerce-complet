@@ -959,6 +959,30 @@ function MerchantDashboard() {
 
           </article>
 
+          <article className="merchant-dashboard-card">
+
+            <div className="merchant-dashboard-card-icon">
+              🏷️
+            </div>
+
+            <h2>
+              Codes promo
+            </h2>
+
+            <p>
+              Créez des codes de réduction pour attirer
+              et fidéliser vos clients.
+            </p>
+
+            <Link
+              to="/commercant/codes-promo"
+              className="merchant-dashboard-button"
+            >
+              Gérer mes codes promo →
+            </Link>
+
+          </article>
+
         </section>
 
         {/* ==================================================

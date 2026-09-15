@@ -285,6 +285,56 @@ export function initierPaiementPaytech(orderNumber, montant, description) {
   });
 }
 
+/* =========================================================
+   CODES PROMO
+   ========================================================= */
+
+export function creerCodePromo(coupon) {
+  return apiRequest("/coupons", {
+    method: "POST",
+    body: JSON.stringify(coupon),
+  }).then(function (data) {
+    return data.coupon;
+  });
+}
+
+export function listerCodesPromo(shopId) {
+  return apiRequest(
+    "/coupons?shopId=" + shopId
+  ).then(function (data) {
+    return data.coupons;
+  });
+}
+
+export function changerActivationCodePromo(id, active) {
+  return apiRequest("/coupons/" + id, {
+    method: "PUT",
+    body: JSON.stringify({ active }),
+  }).then(function (data) {
+    return data.coupon;
+  });
+}
+
+export function supprimerCodePromo(id) {
+  return apiRequest("/coupons/" + id, {
+    method: "DELETE",
+  });
+}
+
+/*
+ * Vérifie un code promo entré par un client dans son
+ * panier. Lève une erreur si le code est invalide, expiré,
+ * ou ne correspond pas à la boutique.
+ */
+export function verifierCodePromo(code, shopId) {
+  return apiRequest("/coupons/verifier", {
+    method: "POST",
+    body: JSON.stringify({ code, shopId }),
+  }).then(function (data) {
+    return data.coupon;
+  });
+}
+
 export function getOrdersByEmail(email) {
   return apiRequest(
     "/orders?email=" + encodeURIComponent(email)

@@ -35,6 +35,7 @@ import AddProduct from "./pages/merchant/AddProduct";
 import EditProduct from "./pages/merchant/EditProduct";
 import MerchantProfile from "./pages/merchant/MerchantProfile";
 import CreateShop from "./pages/merchant/CreateShop";
+import MerchantCoupons from "./pages/merchant/MerchantCoupons";
 
 
 function App() {
@@ -242,6 +243,16 @@ function App() {
           <Route
             path="/commercant/produits"
             element={<MerchantProducts />}
+          />
+
+
+          {/* =========================
+              CODES PROMO COMMERÇANT
+          ========================= */}
+
+          <Route
+            path="/commercant/codes-promo"
+            element={<MerchantCoupons />}
           />
 
 
