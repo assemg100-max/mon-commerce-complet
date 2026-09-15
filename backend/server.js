@@ -1215,6 +1215,101 @@ app.post("/api/orders", async function (req, res) {
     });
   }
 
+  /*
+   * Notifie chaque commerçant concerné par cette commande
+   * (un client peut acheter des produits de plusieurs
+   * boutiques en une seule commande). Chaque commerçant ne
+   * voit que SES produits et SA part du total, jamais ceux
+   * des autres vendeurs.
+   */
+  const shopIdsDansLaCommande = [
+    ...new Set(
+      products
+        .map(function (item) {
+          return item.shopId;
+        })
+        .filter(function (shopId) {
+          return shopId !== undefined && shopId !== null;
+        })
+    ),
+  ];
+
+  shopIdsDansLaCommande.forEach(function (shopId) {
+    const shop = db.shops.find(function (item) {
+      return Number(item.id) === Number(shopId);
+    });
+
+    if (!shop || !shop.ownerId) {
+      return;
+    }
+
+    const owner = db.users.find(function (item) {
+      return Number(item.id) === Number(shop.ownerId);
+    });
+
+    if (!owner || !owner.email) {
+      return;
+    }
+
+    const produitsDuCommercant = products.filter(
+      function (item) {
+        return Number(item.shopId) === Number(shopId);
+      }
+    );
+
+    const totalDuCommercant = produitsDuCommercant.reduce(
+      function (sum, item) {
+        return (
+          sum +
+          (Number(item.price) || 0) *
+            (Number(item.quantity) || 0)
+        );
+      },
+      0
+    );
+
+    const listeProduitsHtml = produitsDuCommercant
+      .map(function (item) {
+        return (
+          "<li>" +
+          item.name +
+          " × " +
+          item.quantity +
+          "</li>"
+        );
+      })
+      .join("");
+
+    sendEmail({
+      to: owner.email,
+      subject:
+        "Nouvelle commande reçue ! (" +
+        orderNumber +
+        ") — " +
+        shop.name,
+      html:
+        "<p>Bonjour,</p>" +
+        "<p>Vous avez reçu une nouvelle commande sur <strong>" +
+        shop.name +
+        "</strong> !</p>" +
+        "<p><strong>Numéro de commande :</strong> " +
+        orderNumber +
+        "</p>" +
+        "<ul>" +
+        listeProduitsHtml +
+        "</ul>" +
+        "<p><strong>Votre part :</strong> " +
+        totalDuCommercant.toLocaleString("fr-FR") +
+        " F CFA (avant commission de la plateforme)</p>" +
+        "<p>Connectez-vous à votre espace commerçant pour confirmer et préparer cette commande.</p>",
+    }).catch(function (error) {
+      console.error(
+        "Erreur lors de l'envoi de l'email au commerçant :",
+        error
+      );
+    });
+  });
+
   res.status(201).json({ order: newOrder });
 });
 
