@@ -11,6 +11,7 @@ import {
 } from "../data/api";
 
 import PageTitle from "../components/PageTitle";
+import { prixApresPromo, enPromotion } from "../utils/prix";
 
 import "./Product.css";
 
@@ -282,6 +283,7 @@ function Product() {
     } else {
       cart.push({
         ...product,
+        price: prixApresPromo(product),
         quantity: quantity,
       });
     }
@@ -385,8 +387,27 @@ function Product() {
             )}
 
             <strong className="product-detail-price">
-              {price.toLocaleString("fr-FR")}{" "}
-              F CFA
+              {enPromotion(product) ? (
+                <>
+                  <span className="promo-badge">
+                    -{product.discountPercent}%
+                  </span>
+                  <span className="price-old">
+                    {price.toLocaleString("fr-FR")} F CFA
+                  </span>
+                  <span className="price-new">
+                    {prixApresPromo(product).toLocaleString(
+                      "fr-FR"
+                    )}{" "}
+                    F CFA
+                  </span>
+                </>
+              ) : (
+                <>
+                  {price.toLocaleString("fr-FR")}{" "}
+                  F CFA
+                </>
+              )}
             </strong>
 
             <p className="product-detail-description">

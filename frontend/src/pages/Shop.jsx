@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { getShopById, getProducts } from "../data/api";
 
 import PageTitle from "../components/PageTitle";
+import { prixApresPromo, enPromotion } from "../utils/prix";
 
 import "./Shop.css";
 
@@ -148,6 +149,7 @@ function Shop() {
 
       cart.push({
         ...product,
+        price: prixApresPromo(product),
         quantity: 1,
       });
 
@@ -325,12 +327,33 @@ function Shop() {
                         </p>
 
                         <strong className="product-price">
-                          {Number(
-                            product.price
-                          ).toLocaleString(
-                            "fr-FR"
-                          )}{" "}
-                          F CFA
+                          {enPromotion(product) ? (
+                            <>
+                              <span className="promo-badge">
+                                -{product.discountPercent}%
+                              </span>
+                              <span className="price-old">
+                                {Number(
+                                  product.price
+                                ).toLocaleString("fr-FR")}
+                              </span>{" "}
+                              <span className="price-new">
+                                {prixApresPromo(
+                                  product
+                                ).toLocaleString("fr-FR")}{" "}
+                                F CFA
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              {Number(
+                                product.price
+                              ).toLocaleString(
+                                "fr-FR"
+                              )}{" "}
+                              F CFA
+                            </>
+                          )}
                         </strong>
 
                         <p className="product-stock">

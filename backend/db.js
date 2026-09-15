@@ -47,6 +47,15 @@ const initialData = {
     commissionRate: 0.1,
     orangeMoneyNumber: "",
     waveNumber: "",
+    livraison: [
+      { ville: "Dakar", frais: 1500, delai: "1-2 jours" },
+      { ville: "Thiès", frais: 2000, delai: "2-3 jours" },
+      { ville: "Mbour", frais: 2000, delai: "2-3 jours" },
+    ],
+    livraisonParDefaut: {
+      frais: 3000,
+      delai: "3-5 jours",
+    },
   },
 
   shops: [
@@ -209,6 +218,26 @@ function applyMigrations(data) {
 
     if (data.settings.waveNumber === undefined) {
       data.settings.waveNumber = "";
+      changed = true;
+    }
+
+    if (!Array.isArray(data.settings.livraison)) {
+      data.settings.livraison = [
+        { ville: "Dakar", frais: 1500, delai: "1-2 jours" },
+        { ville: "Thiès", frais: 2000, delai: "2-3 jours" },
+        { ville: "Mbour", frais: 2000, delai: "2-3 jours" },
+      ];
+      changed = true;
+    }
+
+    if (
+      !data.settings.livraisonParDefaut ||
+      typeof data.settings.livraisonParDefaut !== "object"
+    ) {
+      data.settings.livraisonParDefaut = {
+        frais: 3000,
+        delai: "3-5 jours",
+      };
       changed = true;
     }
   }

@@ -469,3 +469,11 @@ export function updateAdminSettings(settings) {
 export function updateCommissionRate(commissionRate) {
   return updateAdminSettings({ commissionRate });
 }
+
+/*
+ * Tarifs de livraison par ville (lecture publique, pour
+ * le panier/checkout).
+ */
+export function getTarifsLivraison() {
+  return apiRequest("/livraison-tarifs");
+}

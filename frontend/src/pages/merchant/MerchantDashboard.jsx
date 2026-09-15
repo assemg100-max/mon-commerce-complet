@@ -983,6 +983,30 @@ function MerchantDashboard() {
 
           </article>
 
+          <article className="merchant-dashboard-card">
+
+            <div className="merchant-dashboard-card-icon">
+              📊
+            </div>
+
+            <h2>
+              Statistiques
+            </h2>
+
+            <p>
+              Suivez votre chiffre d'affaires et vos
+              produits les plus vendus.
+            </p>
+
+            <Link
+              to="/commercant/statistiques"
+              className="merchant-dashboard-button"
+            >
+              Voir mes statistiques →
+            </Link>
+
+          </article>
+
         </section>
 
         {/* ==================================================

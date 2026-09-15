@@ -87,3 +87,32 @@ main {
 section {
   width: 100%;
 }
+
+/* =========================================================
+   PROMOTIONS DIRECTES (badge -X% sur un produit)
+   ========================================================= */
+
+.promo-badge {
+  display: inline-block;
+  background: #dc2626;
+  color: white;
+  font-size: 0.75em;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.price-old {
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-size: 0.85em;
+  font-weight: 400;
+}
+
+.price-new {
+  color: #dc2626;
+  font-weight: 700;
+}
+

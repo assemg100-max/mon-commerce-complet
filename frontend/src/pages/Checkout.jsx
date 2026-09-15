@@ -6,11 +6,20 @@ import {
   getProducts,
   createOrder,
   initierPaiementPaytech,
+  getTarifsLivraison,
 } from "../data/api";
 
 import PageTitle from "../components/PageTitle";
 
 import "./Checkout.css";
+
+function normaliserTexte(texte) {
+  return texte
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
 
 function Checkout() {
   const navigate = useNavigate();
@@ -19,6 +28,10 @@ function Checkout() {
   const [shops, setShops] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [tarifsLivraison, setTarifsLivraison] = useState({
+    villes: [],
+    parDefaut: { frais: 0, delai: "" },
+  });
 
   const [form, setForm] = useState({
     name: "",
@@ -29,6 +42,17 @@ function Checkout() {
     paymentMethod: "cod",
     paymentReference: "",
   });
+
+  useEffect(() => {
+    getTarifsLivraison()
+      .then(setTarifsLivraison)
+      .catch(function (error) {
+        console.error(
+          "Erreur chargement tarifs de livraison :",
+          error
+        );
+      });
+  }, []);
 
   useEffect(() => {
     const savedCart = localStorage.getItem(
@@ -138,6 +162,25 @@ function Checkout() {
 
   const totalFinal = total - reduction;
 
+  const villeCorrespondante = tarifsLivraison.villes.find(
+    function (item) {
+      return (
+        normaliserTexte(item.ville) ===
+        normaliserTexte(form.city || "")
+      );
+    }
+  );
+
+  const infosLivraison = form.city.trim()
+    ? villeCorrespondante || tarifsLivraison.parDefaut
+    : null;
+
+  const fraisLivraison = infosLivraison
+    ? Number(infosLivraison.frais) || 0
+    : 0;
+
+  const totalAvecLivraison = totalFinal + fraisLivraison;
+
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -232,7 +275,8 @@ function Checkout() {
           email: customerEmail,
         },
         products: orderProducts,
-        total: totalFinal,
+        total: totalAvecLivraison,
+        merchandiseTotal: totalFinal,
         totalProducts,
         paymentMethod: form.paymentMethod,
         paymentReference: form.paymentReference.trim(),
@@ -240,6 +284,10 @@ function Checkout() {
           ? appliedCoupon.code
           : "",
         discount: reduction,
+        deliveryFee: fraisLivraison,
+        deliveryEstimate: infosLivraison
+          ? infosLivraison.delai
+          : "",
       });
 
       localStorage.removeItem("mon-commerce-cart");
@@ -257,7 +305,7 @@ function Checkout() {
       if (form.paymentMethod === "paytech") {
         const { redirectUrl } = await initierPaiementPaytech(
           order.orderNumber,
-          totalFinal,
+          totalAvecLivraison,
           "Commande " + order.orderNumber
         );
 
@@ -577,7 +625,7 @@ function Checkout() {
                   <p>
                     Envoyez{" "}
                     <strong>
-                      {totalFinal.toLocaleString("fr-FR")}{" "}
+                      {totalAvecLivraison.toLocaleString("fr-FR")}{" "}
                       F CFA
                     </strong>{" "}
                     via Orange Money directement à{" "}
@@ -618,7 +666,7 @@ function Checkout() {
                   <p>
                     Envoyez{" "}
                     <strong>
-                      {totalFinal.toLocaleString("fr-FR")}{" "}
+                      {totalAvecLivraison.toLocaleString("fr-FR")}{" "}
                       F CFA
                     </strong>{" "}
                     via Wave directement à{" "}
@@ -747,6 +795,29 @@ function Checkout() {
               </div>
             )}
 
+            {infosLivraison && (
+              <div className="checkout-summary-line">
+
+                <span>
+                  Livraison
+                  {infosLivraison.delai
+                    ? " (" + infosLivraison.delai + ")"
+                    : ""}
+                </span>
+
+                <span>
+                  {fraisLivraison > 0
+                    ? "+ " +
+                      fraisLivraison.toLocaleString(
+                        "fr-FR"
+                      ) +
+                      " F CFA"
+                    : "Gratuite"}
+                </span>
+
+              </div>
+            )}
+
             <div className="checkout-summary-total">
 
               <span>
@@ -754,7 +825,9 @@ function Checkout() {
               </span>
 
               <strong>
-                {totalFinal.toLocaleString("fr-FR")}{" "}
+                {totalAvecLivraison.toLocaleString(
+                  "fr-FR"
+                )}{" "}
                 F CFA
               </strong>
 

@@ -26,6 +26,7 @@ function EditProduct() {
     description: "",
     stock: "",
     image: "",
+    discountPercent: "",
   });
 
   useEffect(() => {
@@ -99,6 +100,8 @@ function EditProduct() {
             product.description || "",
           stock: product.stock ?? "",
           image: product.image || "",
+          discountPercent:
+            product.discountPercent || "",
         });
       })
       .catch(function (error) {
@@ -209,6 +212,8 @@ function EditProduct() {
       stock: Number(form.stock),
 
       image: form.image.trim(),
+
+      discountPercent: Number(form.discountPercent) || 0,
     };
 
     setSubmitting(true);
@@ -335,6 +340,25 @@ function EditProduct() {
                   onChange={handleChange}
                   placeholder="10"
                   required
+                />
+
+              </div>
+
+              <div className="form-group">
+
+                <label htmlFor="discountPercent">
+                  Promotion (optionnel)
+                </label>
+
+                <input
+                  id="discountPercent"
+                  name="discountPercent"
+                  type="number"
+                  min="0"
+                  max="90"
+                  value={form.discountPercent}
+                  onChange={handleChange}
+                  placeholder="Ex : 20 pour -20%"
                 />
 
               </div>

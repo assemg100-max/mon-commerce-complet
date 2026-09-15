@@ -144,6 +144,26 @@ app.get("/api/payment-info", async function (req, res) {
 });
 
 
+/*
+ * Tarifs de livraison par ville — route publique, lue par
+ * le panier/checkout pour calculer les frais et le délai
+ * estimé selon la ville du client.
+ */
+app.get("/api/livraison-tarifs", async function (req, res) {
+  const db = await readDB();
+
+  res.json({
+    villes:
+      (db.settings && db.settings.livraison) || [],
+    parDefaut:
+      (db.settings && db.settings.livraisonParDefaut) || {
+        frais: 3000,
+        delai: "3-5 jours",
+      },
+  });
+});
+
+
 /* =========================================================
    AUTHENTIFICATION
    ========================================================= */
@@ -874,6 +894,7 @@ app.post("/api/products", requireAuth, async function (req, res) {
     description,
     stock,
     image,
+    discountPercent,
   } = req.body;
 
   if (!name || !price || !shopId) {
@@ -916,6 +937,8 @@ app.post("/api/products", requireAuth, async function (req, res) {
     description: description || "",
     stock: Number(stock) || 0,
     image: image || "",
+    discountPercent:
+      Math.min(90, Math.max(0, Number(discountPercent) || 0)),
   };
 
   db.products.push(newProduct);
@@ -1276,10 +1299,13 @@ app.post("/api/orders", async function (req, res) {
     customer,
     products,
     total,
+    merchandiseTotal,
     paymentMethod,
     paymentReference,
     couponCode,
     discount,
+    deliveryFee,
+    deliveryEstimate,
   } = req.body;
 
   if (
@@ -1368,9 +1394,20 @@ app.post("/api/orders", async function (req, res) {
     (db.settings && db.settings.commissionRate) || 0.1;
 
   const orderTotal = Number(total) || 0;
+
+  /*
+   * La commission de la plateforme ne porte que sur la
+   * valeur des produits, jamais sur les frais de
+   * livraison (qui ne sont pas une vente du commerçant).
+   */
+  const baseCommission =
+    merchandiseTotal !== undefined
+      ? Number(merchandiseTotal) || 0
+      : orderTotal;
+
   const platformFee =
-    Math.round(orderTotal * commissionRate);
-  const merchantPayout = orderTotal - platformFee;
+    Math.round(baseCommission * commissionRate);
+  const merchantPayout = baseCommission - platformFee;
 
   const newOrder = {
     orderNumber,
@@ -1379,6 +1416,8 @@ app.post("/api/orders", async function (req, res) {
     total: orderTotal,
     couponCode: couponCode || "",
     discount: Number(discount) || 0,
+    deliveryFee: Number(deliveryFee) || 0,
+    deliveryEstimate: deliveryEstimate || "",
     status: "En attente",
     createdAt: new Date().toISOString(),
     commissionRate,
@@ -2101,6 +2140,13 @@ app.get("/api/admin/stats", requireAdmin, async function (req, res) {
       (db.settings && db.settings.orangeMoneyNumber) || "",
     waveNumber:
       (db.settings && db.settings.waveNumber) || "",
+    livraison:
+      (db.settings && db.settings.livraison) || [],
+    livraisonParDefaut:
+      (db.settings && db.settings.livraisonParDefaut) || {
+        frais: 3000,
+        delai: "3-5 jours",
+      },
   });
 });
 
@@ -2110,6 +2156,8 @@ app.put("/api/admin/settings", requireAdmin, async function (req, res) {
     commissionRate,
     orangeMoneyNumber,
     waveNumber,
+    livraison,
+    livraisonParDefaut,
   } = req.body;
 
   const db = await readDB();
@@ -2135,6 +2183,30 @@ app.put("/api/admin/settings", requireAdmin, async function (req, res) {
 
   if (waveNumber !== undefined) {
     updatedSettings.waveNumber = waveNumber;
+  }
+
+  if (Array.isArray(livraison)) {
+    updatedSettings.livraison = livraison.map(function (
+      item
+    ) {
+      return {
+        ville: String(item.ville || "").trim(),
+        frais: Number(item.frais) || 0,
+        delai: String(item.delai || "").trim(),
+      };
+    });
+  }
+
+  if (
+    livraisonParDefaut &&
+    typeof livraisonParDefaut === "object"
+  ) {
+    updatedSettings.livraisonParDefaut = {
+      frais: Number(livraisonParDefaut.frais) || 0,
+      delai: String(
+        livraisonParDefaut.delai || ""
+      ).trim(),
+    };
   }
 
   db.settings = updatedSettings;

@@ -13,6 +13,19 @@ function Admin() {
   const [rateInput, setRateInput] = useState("10");
   const [saving, setSaving] = useState(false);
 
+  const [villes, setVilles] = useState([]);
+  const [nouvelleVille, setNouvelleVille] = useState({
+    ville: "",
+    frais: "",
+    delai: "",
+  });
+  const [parDefaut, setParDefaut] = useState({
+    frais: "",
+    delai: "",
+  });
+  const [savingLivraison, setSavingLivraison] =
+    useState(false);
+
   useEffect(function () {
     const savedUser = localStorage.getItem(
       "mon-commerce-current-user"
@@ -49,6 +62,18 @@ function Admin() {
         setRateInput(
           String(Math.round(data.commissionRate * 100))
         );
+        setVilles(data.livraison || []);
+        setParDefaut({
+          frais: String(
+            (data.livraisonParDefaut &&
+              data.livraisonParDefaut.frais) ||
+              ""
+          ),
+          delai:
+            (data.livraisonParDefaut &&
+              data.livraisonParDefaut.delai) ||
+            "",
+        });
       })
       .catch(function (error) {
         console.error(
@@ -93,7 +118,81 @@ function Admin() {
       });
   }
 
-  if (loading || !stats) {
+  function handleAjouterVille(event) {
+    event.preventDefault();
+
+    if (
+      !nouvelleVille.ville.trim() ||
+      !nouvelleVille.frais ||
+      !nouvelleVille.delai.trim()
+    ) {
+      alert(
+        "Renseigne la ville, les frais et le délai."
+      );
+      return;
+    }
+
+    const nouvellesVilles = [
+      ...villes,
+      {
+        ville: nouvelleVille.ville.trim(),
+        frais: Number(nouvelleVille.frais),
+        delai: nouvelleVille.delai.trim(),
+      },
+    ];
+
+    setVilles(nouvellesVilles);
+    setNouvelleVille({ ville: "", frais: "", delai: "" });
+
+    enregistrerLivraison(nouvellesVilles);
+  }
+
+  function handleSupprimerVille(index) {
+    const nouvellesVilles = villes.filter(function (
+      item,
+      i
+    ) {
+      return i !== index;
+    });
+
+    setVilles(nouvellesVilles);
+    enregistrerLivraison(nouvellesVilles);
+  }
+
+  function enregistrerLivraison(nouvellesVilles) {
+    setSavingLivraison(true);
+
+    updateAdminSettings({
+      livraison: nouvellesVilles,
+    })
+      .catch(function (error) {
+        alert(error.message);
+      })
+      .finally(function () {
+        setSavingLivraison(false);
+      });
+  }
+
+  function handleSaveParDefaut(event) {
+    event.preventDefault();
+
+    setSavingLivraison(true);
+
+    updateAdminSettings({
+      livraisonParDefaut: {
+        frais: Number(parDefaut.frais) || 0,
+        delai: parDefaut.delai.trim(),
+      },
+    })
+      .catch(function (error) {
+        alert(error.message);
+      })
+      .finally(function () {
+        setSavingLivraison(false);
+      });
+  }
+
+
     return (
       <main className="admin-page">
         <div className="admin-container">
@@ -188,6 +287,145 @@ function Admin() {
               {saving
                 ? "Enregistrement..."
                 : "Mettre à jour"}
+            </button>
+
+          </form>
+
+        </section>
+
+        <section className="admin-settings-card">
+
+          <h2>Livraison : frais et délais par ville</h2>
+
+          <p>
+            Ces frais s'ajoutent automatiquement au total
+            de la commande selon la ville indiquée par le
+            client. Une ville non listée utilise le tarif
+            par défaut.
+          </p>
+
+          <div className="admin-livraison-list">
+
+            {villes.map(function (item, index) {
+              return (
+                <div
+                  className="admin-livraison-row"
+                  key={index}
+                >
+                  <span>{item.ville}</span>
+                  <span>
+                    {Number(item.frais).toLocaleString(
+                      "fr-FR"
+                    )}{" "}
+                    F CFA
+                  </span>
+                  <span>{item.delai}</span>
+                  <button
+                    type="button"
+                    onClick={function () {
+                      handleSupprimerVille(index);
+                    }}
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              );
+            })}
+
+          </div>
+
+          <form
+            className="admin-livraison-form"
+            onSubmit={handleAjouterVille}
+          >
+
+            <input
+              type="text"
+              placeholder="Ville (ex : Kaolack)"
+              value={nouvelleVille.ville}
+              onChange={function (event) {
+                setNouvelleVille(function (previous) {
+                  return {
+                    ...previous,
+                    ville: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <input
+              type="number"
+              min="0"
+              placeholder="Frais (F CFA)"
+              value={nouvelleVille.frais}
+              onChange={function (event) {
+                setNouvelleVille(function (previous) {
+                  return {
+                    ...previous,
+                    frais: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <input
+              type="text"
+              placeholder="Délai (ex : 2-3 jours)"
+              value={nouvelleVille.delai}
+              onChange={function (event) {
+                setNouvelleVille(function (previous) {
+                  return {
+                    ...previous,
+                    delai: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <button type="submit" disabled={savingLivraison}>
+              Ajouter
+            </button>
+
+          </form>
+
+          <h3>Tarif par défaut (autres villes)</h3>
+
+          <form
+            className="admin-livraison-form"
+            onSubmit={handleSaveParDefaut}
+          >
+
+            <input
+              type="number"
+              min="0"
+              placeholder="Frais (F CFA)"
+              value={parDefaut.frais}
+              onChange={function (event) {
+                setParDefaut(function (previous) {
+                  return {
+                    ...previous,
+                    frais: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <input
+              type="text"
+              placeholder="Délai (ex : 3-5 jours)"
+              value={parDefaut.delai}
+              onChange={function (event) {
+                setParDefaut(function (previous) {
+                  return {
+                    ...previous,
+                    delai: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <button type="submit" disabled={savingLivraison}>
+              Enregistrer
             </button>
 
           </form>

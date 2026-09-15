@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getProducts } from "../data/api";
+import { prixApresPromo, enPromotion } from "../utils/prix";
 import "./PopularProducts.css";
 
 function PopularProducts() {
@@ -92,7 +93,31 @@ function PopularProducts() {
                   </p>
 
                   <strong className="popular-product-price">
-                    {product.price.toLocaleString("fr-FR")} F CFA
+                    {enPromotion(product) ? (
+                      <>
+                        <span className="promo-badge">
+                          -{product.discountPercent}%
+                        </span>{" "}
+                        <span className="price-old">
+                          {product.price.toLocaleString(
+                            "fr-FR"
+                          )}
+                        </span>{" "}
+                        <span className="price-new">
+                          {prixApresPromo(
+                            product
+                          ).toLocaleString("fr-FR")}{" "}
+                          F CFA
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        {product.price.toLocaleString(
+                          "fr-FR"
+                        )}{" "}
+                        F CFA
+                      </>
+                    )}
                   </strong>
 
                   <p className="popular-product-stock">
