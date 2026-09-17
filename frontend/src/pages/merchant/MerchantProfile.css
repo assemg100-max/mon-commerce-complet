@@ -367,3 +367,94 @@
   font-weight: 600;
   color: var(--ink-soft, #4a5468);
 }
+
+.merchant-profile-section {
+  background: var(--paper, #ffffff);
+  border: 1px solid var(--border, #e8ddc9);
+  border-radius: 14px;
+  padding: 26px;
+  margin-top: 24px;
+}
+
+.merchant-profile-section h2 {
+  margin: 0 0 8px;
+  font-size: 19px;
+}
+
+.merchant-profile-section h3 {
+  margin: 20px 0 8px;
+  font-size: 15px;
+}
+
+.merchant-profile-section p {
+  margin: 0 0 18px;
+  color: var(--ink-soft, #4a5468);
+  font-size: 14px;
+}
+
+.merchant-livraison-empty {
+  font-style: italic;
+}
+
+.merchant-livraison-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.merchant-livraison-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  background: #f8f9fb;
+  border-radius: 8px;
+}
+
+.merchant-livraison-row button {
+  background: none;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.merchant-livraison-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.merchant-livraison-form input {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 10px;
+  border: 1px solid #d5d9e0;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.merchant-livraison-form button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #0e7c74;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.merchant-livraison-form button:disabled {
+  opacity: 0.6;
+}
+
+@media (max-width: 600px) {
+  .merchant-livraison-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

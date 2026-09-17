@@ -39,8 +39,7 @@ function Checkout() {
     city: "",
     address: "",
     notes: "",
-    paymentMethod: "cod",
-    paymentReference: "",
+    paymentMethod: "paytech",
   });
 
   useEffect(() => {
@@ -97,11 +96,10 @@ function Checkout() {
    * BOUTIQUES DU PANIER
    * =========================================================
    *
-   * Comme chaque boutique a maintenant son propre numéro
-   * Mobile Money, le paiement direct par Orange Money/Wave
-   * n'est proposé que si TOUS les produits du panier
-   * viennent de la MÊME boutique (sinon, il faudrait payer
-   * plusieurs commerçants différents en une seule commande).
+   * Un panier peut contenir des produits de plusieurs
+   * boutiques différentes. Comme chez Jumia, chaque
+   * boutique livre son propre colis et a donc ses propres
+   * frais de livraison.
    */
   const shopIdsInCart = [
     ...new Set(
@@ -110,13 +108,6 @@ function Checkout() {
       })
     ),
   ];
-
-  const singleShop =
-    shopIdsInCart.length === 1
-      ? getShopById(shopIdsInCart[0])
-      : null;
-
-  const canPayByMobileMoney = Boolean(singleShop);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -162,22 +153,61 @@ function Checkout() {
 
   const totalFinal = total - reduction;
 
-  const villeCorrespondante = tarifsLivraison.villes.find(
-    function (item) {
+  /*
+   * =========================================================
+   * LIVRAISON PAR BOUTIQUE (façon Jumia)
+   * =========================================================
+   *
+   * Chaque boutique du panier a son propre tarif de
+   * livraison par ville. Si elle n'a rien configuré, on
+   * retombe sur le tarif par défaut de la plateforme
+   * (réglé par l'admin) pour ne pas bloquer les boutiques
+   * qui n'ont pas encore réglé leurs tarifs.
+   */
+  function trouverTarifVille(livraisonListe, ville) {
+    return (livraisonListe || []).find(function (item) {
       return (
         normaliserTexte(item.ville) ===
-        normaliserTexte(form.city || "")
+        normaliserTexte(ville || "")
       );
+    });
+  }
+
+  const livraisonParBoutique = shopIdsInCart.map(
+    function (shopId) {
+      const shop = getShopById(shopId);
+
+      const tarifBoutiqueVille = trouverTarifVille(
+        shop && shop.livraison,
+        form.city
+      );
+
+      const tarifParDefautBoutique =
+        shop &&
+        shop.livraisonParDefaut &&
+        Number(shop.livraisonParDefaut.frais) > 0
+          ? shop.livraisonParDefaut
+          : tarifsLivraison.parDefaut;
+
+      const infos = form.city.trim()
+        ? tarifBoutiqueVille || tarifParDefautBoutique
+        : null;
+
+      return {
+        shopId,
+        shopName: shop ? shop.name : "Boutique",
+        frais: infos ? Number(infos.frais) || 0 : 0,
+        delai: infos ? infos.delai || "" : "",
+      };
     }
   );
 
-  const infosLivraison = form.city.trim()
-    ? villeCorrespondante || tarifsLivraison.parDefaut
-    : null;
-
-  const fraisLivraison = infosLivraison
-    ? Number(infosLivraison.frais) || 0
-    : 0;
+  const fraisLivraison = livraisonParBoutique.reduce(
+    function (sum, item) {
+      return sum + item.frais;
+    },
+    0
+  );
 
   const totalAvecLivraison = totalFinal + fraisLivraison;
 
@@ -199,27 +229,6 @@ function Checkout() {
     ) {
       alert(
         "Veuillez remplir tous les champs obligatoires."
-      );
-      return;
-    }
-
-    if (
-      form.paymentMethod !== "cod" &&
-      !canPayByMobileMoney
-    ) {
-      alert(
-        "Le paiement Mobile Money n'est disponible que pour une commande d'une seule boutique à la fois."
-      );
-      return;
-    }
-
-    if (
-      form.paymentMethod !== "cod" &&
-      form.paymentMethod !== "paytech" &&
-      !form.paymentReference.trim()
-    ) {
-      alert(
-        "Veuillez indiquer la référence de votre transaction Mobile Money."
       );
       return;
     }
@@ -278,16 +287,19 @@ function Checkout() {
         total: totalAvecLivraison,
         merchandiseTotal: totalFinal,
         totalProducts,
-        paymentMethod: form.paymentMethod,
-        paymentReference: form.paymentReference.trim(),
+        paymentMethod: "paytech",
         couponCode: appliedCoupon
           ? appliedCoupon.code
           : "",
         discount: reduction,
         deliveryFee: fraisLivraison,
-        deliveryEstimate: infosLivraison
-          ? infosLivraison.delai
-          : "",
+        deliveryEstimate: livraisonParBoutique
+          .map(function (item) {
+            return item.delai;
+          })
+          .filter(Boolean)
+          .join(" / "),
+        deliveryBreakdown: livraisonParBoutique,
       });
 
       localStorage.removeItem("mon-commerce-cart");
@@ -496,26 +508,19 @@ function Checkout() {
 
               <div className="payment-methods">
 
-                <label
-                  className={
-                    "payment-method-option" +
-                    (form.paymentMethod === "paytech"
-                      ? " selected"
-                      : "")
-                  }
-                >
+                <label className="payment-method-option selected">
                   <input
                     type="radio"
                     name="paymentMethod"
                     value="paytech"
-                    checked={form.paymentMethod === "paytech"}
-                    onChange={handleChange}
+                    checked
+                    readOnly
                   />
                   <span className="payment-method-icon">
                     💳
                   </span>
                   <span>
-                    <strong>Payer en ligne maintenant</strong>
+                    <strong>Payer en ligne avec PayTech</strong>
                     <small>
                       Orange Money, Wave, Free Money ou carte
                       bancaire — paiement sécurisé et
@@ -524,181 +529,7 @@ function Checkout() {
                   </span>
                 </label>
 
-                <label
-                  className={
-                    "payment-method-option" +
-                    (form.paymentMethod === "cod"
-                      ? " selected"
-                      : "")
-                  }
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="cod"
-                    checked={form.paymentMethod === "cod"}
-                    onChange={handleChange}
-                  />
-                  <span className="payment-method-icon">
-                    💵
-                  </span>
-                  <span>
-                    <strong>Paiement à la livraison</strong>
-                    <small>
-                      Vous payez en espèces quand vous
-                      recevez votre commande.
-                    </small>
-                  </span>
-                </label>
-
-                <label
-                  className={
-                    "payment-method-option" +
-                    (!canPayByMobileMoney
-                      ? " disabled"
-                      : "") +
-                    (form.paymentMethod === "orange_money"
-                      ? " selected"
-                      : "")
-                  }
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="orange_money"
-                    disabled={!canPayByMobileMoney}
-                    checked={
-                      form.paymentMethod === "orange_money"
-                    }
-                    onChange={handleChange}
-                  />
-                  <span className="payment-method-icon">
-                    🟠
-                  </span>
-                  <span>
-                    <strong>Orange Money</strong>
-                    <small>
-                      {canPayByMobileMoney
-                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
-                        : "Disponible uniquement pour une commande d'une seule boutique."}
-                    </small>
-                  </span>
-                </label>
-
-                <label
-                  className={
-                    "payment-method-option" +
-                    (!canPayByMobileMoney
-                      ? " disabled"
-                      : "") +
-                    (form.paymentMethod === "wave"
-                      ? " selected"
-                      : "")
-                  }
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="wave"
-                    disabled={!canPayByMobileMoney}
-                    checked={form.paymentMethod === "wave"}
-                    onChange={handleChange}
-                  />
-                  <span className="payment-method-icon">
-                    🔵
-                  </span>
-                  <span>
-                    <strong>Wave</strong>
-                    <small>
-                      {canPayByMobileMoney
-                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
-                        : "Disponible uniquement pour une commande d'une seule boutique."}
-                    </small>
-                  </span>
-                </label>
-
               </div>
-
-              {form.paymentMethod === "orange_money" && (
-                <div className="payment-instructions">
-
-                  <p>
-                    Envoyez{" "}
-                    <strong>
-                      {totalAvecLivraison.toLocaleString("fr-FR")}{" "}
-                      F CFA
-                    </strong>{" "}
-                    via Orange Money directement à{" "}
-                    <strong>
-                      {singleShop
-                        ? singleShop.name
-                        : "la boutique"}
-                    </strong>{" "}
-                    au numéro :
-                  </p>
-
-                  <strong className="payment-number">
-                    {(singleShop &&
-                      singleShop.orangeMoneyNumber) ||
-                      "Ce commerçant n'a pas encore configuré son numéro Orange Money"}
-                  </strong>
-
-                  <label htmlFor="paymentReference">
-                    Référence de la transaction *
-                  </label>
-
-                  <input
-                    id="paymentReference"
-                    name="paymentReference"
-                    type="text"
-                    value={form.paymentReference}
-                    onChange={handleChange}
-                    placeholder="Ex : OM240912.1234.A56789"
-                    required
-                  />
-
-                </div>
-              )}
-
-              {form.paymentMethod === "wave" && (
-                <div className="payment-instructions">
-
-                  <p>
-                    Envoyez{" "}
-                    <strong>
-                      {totalAvecLivraison.toLocaleString("fr-FR")}{" "}
-                      F CFA
-                    </strong>{" "}
-                    via Wave directement à{" "}
-                    <strong>
-                      {singleShop
-                        ? singleShop.name
-                        : "la boutique"}
-                    </strong>{" "}
-                    au numéro :
-                  </p>
-
-                  <strong className="payment-number">
-                    {(singleShop && singleShop.waveNumber) ||
-                      "Ce commerçant n'a pas encore configuré son numéro Wave"}
-                  </strong>
-
-                  <label htmlFor="paymentReference">
-                    Référence de la transaction *
-                  </label>
-
-                  <input
-                    id="paymentReference"
-                    name="paymentReference"
-                    type="text"
-                    value={form.paymentReference}
-                    onChange={handleChange}
-                    placeholder="Référence reçue par SMS"
-                    required
-                  />
-
-                </div>
-              )}
 
             </section>
 
@@ -795,28 +626,34 @@ function Checkout() {
               </div>
             )}
 
-            {infosLivraison && (
-              <div className="checkout-summary-line">
+            {form.city.trim() &&
+              livraisonParBoutique.map(function (item) {
+                return (
+                  <div
+                    className="checkout-summary-line"
+                    key={item.shopId}
+                  >
 
-                <span>
-                  Livraison
-                  {infosLivraison.delai
-                    ? " (" + infosLivraison.delai + ")"
-                    : ""}
-                </span>
+                    <span>
+                      Livraison — {item.shopName}
+                      {item.delai
+                        ? " (" + item.delai + ")"
+                        : ""}
+                    </span>
 
-                <span>
-                  {fraisLivraison > 0
-                    ? "+ " +
-                      fraisLivraison.toLocaleString(
-                        "fr-FR"
-                      ) +
-                      " F CFA"
-                    : "Gratuite"}
-                </span>
+                    <span>
+                      {item.frais > 0
+                        ? "+ " +
+                          item.frais.toLocaleString(
+                            "fr-FR"
+                          ) +
+                          " F CFA"
+                        : "Gratuite"}
+                    </span>
 
-              </div>
-            )}
+                  </div>
+                );
+              })}
 
             <div className="checkout-summary-total">
 

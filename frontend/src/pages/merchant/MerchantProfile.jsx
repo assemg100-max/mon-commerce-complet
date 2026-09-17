@@ -29,6 +29,30 @@ function MerchantProfile() {
     waveNumber: "",
   });
 
+  /*
+   * =========================================================
+   * LIVRAISON DE CETTE BOUTIQUE (façon Jumia)
+   * =========================================================
+   *
+   * Chaque boutique fixe ses propres frais de livraison par
+   * ville, indépendamment des autres boutiques. Cette section
+   * s'enregistre immédiatement (comme sur l'espace admin),
+   * sans passer par le bouton "Enregistrer" du formulaire
+   * principal.
+   */
+  const [villes, setVilles] = useState([]);
+  const [nouvelleVille, setNouvelleVille] = useState({
+    ville: "",
+    frais: "",
+    delai: "",
+  });
+  const [parDefaut, setParDefaut] = useState({
+    frais: "",
+    delai: "",
+  });
+  const [savingLivraison, setSavingLivraison] =
+    useState(false);
+
   useEffect(() => {
     const savedUser = localStorage.getItem(
       "mon-commerce-current-user"
@@ -83,6 +107,19 @@ function MerchantProfile() {
             currentShop.orangeMoneyNumber || "",
           waveNumber: currentShop.waveNumber || "",
         });
+
+        setVilles(currentShop.livraison || []);
+        setParDefaut({
+          frais: String(
+            (currentShop.livraisonParDefaut &&
+              currentShop.livraisonParDefaut.frais) ||
+              ""
+          ),
+          delai:
+            (currentShop.livraisonParDefaut &&
+              currentShop.livraisonParDefaut.delai) ||
+            "",
+        });
       })
       .catch(function () {
         alert("Boutique introuvable.");
@@ -122,6 +159,84 @@ function MerchantProfile() {
       })
       .finally(function () {
         setUploadingLogo(false);
+      });
+  }
+
+  function handleAjouterVille(event) {
+    event.preventDefault();
+
+    if (
+      !nouvelleVille.ville.trim() ||
+      !nouvelleVille.frais ||
+      !nouvelleVille.delai.trim()
+    ) {
+      alert("Renseigne la ville, les frais et le délai.");
+      return;
+    }
+
+    const nouvellesVilles = [
+      ...villes,
+      {
+        ville: nouvelleVille.ville.trim(),
+        frais: Number(nouvelleVille.frais),
+        delai: nouvelleVille.delai.trim(),
+      },
+    ];
+
+    setVilles(nouvellesVilles);
+    setNouvelleVille({ ville: "", frais: "", delai: "" });
+
+    enregistrerLivraison(nouvellesVilles);
+  }
+
+  function handleSupprimerVille(index) {
+    const nouvellesVilles = villes.filter(function (
+      item,
+      i
+    ) {
+      return i !== index;
+    });
+
+    setVilles(nouvellesVilles);
+    enregistrerLivraison(nouvellesVilles);
+  }
+
+  function enregistrerLivraison(nouvellesVilles) {
+    if (!shop) {
+      return;
+    }
+
+    setSavingLivraison(true);
+
+    updateShop(shop.id, { livraison: nouvellesVilles })
+      .catch(function (error) {
+        alert(error.message);
+      })
+      .finally(function () {
+        setSavingLivraison(false);
+      });
+  }
+
+  function handleSaveParDefaut(event) {
+    event.preventDefault();
+
+    if (!shop) {
+      return;
+    }
+
+    setSavingLivraison(true);
+
+    updateShop(shop.id, {
+      livraisonParDefaut: {
+        frais: Number(parDefaut.frais) || 0,
+        delai: parDefaut.delai.trim(),
+      },
+    })
+      .catch(function (error) {
+        alert(error.message);
+      })
+      .finally(function () {
+        setSavingLivraison(false);
       });
   }
 
@@ -583,6 +698,160 @@ function MerchantProfile() {
           </div>
 
         </form>
+
+        {/* =========================
+            LIVRAISON DE LA BOUTIQUE
+        ========================= */}
+
+        <section className="merchant-profile-section">
+
+          <h2>
+            Livraison : mes frais par ville
+          </h2>
+
+          <p>
+            Comme chez Jumia, chaque boutique fixe ses
+            propres frais de livraison. Si un client
+            commande chez plusieurs boutiques en même
+            temps, chacune facture son propre frais de
+            livraison.
+          </p>
+
+          <div className="merchant-livraison-list">
+
+            {villes.length === 0 && (
+              <p className="merchant-livraison-empty">
+                Aucune ville configurée pour l'instant —
+                le tarif par défaut ci-dessous s'applique
+                à toutes vos livraisons.
+              </p>
+            )}
+
+            {villes.map(function (item, index) {
+              return (
+                <div
+                  className="merchant-livraison-row"
+                  key={index}
+                >
+                  <span>{item.ville}</span>
+                  <span>
+                    {Number(item.frais).toLocaleString(
+                      "fr-FR"
+                    )}{" "}
+                    F CFA
+                  </span>
+                  <span>{item.delai}</span>
+                  <button
+                    type="button"
+                    onClick={function () {
+                      handleSupprimerVille(index);
+                    }}
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              );
+            })}
+
+          </div>
+
+          <form
+            className="merchant-livraison-form"
+            onSubmit={handleAjouterVille}
+          >
+
+            <input
+              type="text"
+              placeholder="Ville (ex : Mbour)"
+              value={nouvelleVille.ville}
+              onChange={function (event) {
+                setNouvelleVille(function (previous) {
+                  return {
+                    ...previous,
+                    ville: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <input
+              type="number"
+              min="0"
+              placeholder="Frais (F CFA)"
+              value={nouvelleVille.frais}
+              onChange={function (event) {
+                setNouvelleVille(function (previous) {
+                  return {
+                    ...previous,
+                    frais: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <input
+              type="text"
+              placeholder="Délai (ex : 1-2 jours)"
+              value={nouvelleVille.delai}
+              onChange={function (event) {
+                setNouvelleVille(function (previous) {
+                  return {
+                    ...previous,
+                    delai: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <button type="submit" disabled={savingLivraison}>
+              Ajouter
+            </button>
+
+          </form>
+
+          <h3>Tarif par défaut (autres villes)</h3>
+
+          <form
+            className="merchant-livraison-form"
+            onSubmit={handleSaveParDefaut}
+          >
+
+            <input
+              type="number"
+              min="0"
+              placeholder="Frais (F CFA)"
+              value={parDefaut.frais}
+              onChange={function (event) {
+                setParDefaut(function (previous) {
+                  return {
+                    ...previous,
+                    frais: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <input
+              type="text"
+              placeholder="Délai (ex : 3-5 jours)"
+              value={parDefaut.delai}
+              onChange={function (event) {
+                setParDefaut(function (previous) {
+                  return {
+                    ...previous,
+                    delai: event.target.value,
+                  };
+                });
+              }}
+            />
+
+            <button type="submit" disabled={savingLivraison}>
+              Enregistrer
+            </button>
+
+          </form>
+
+        </section>
 
       </div>
 
