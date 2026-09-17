@@ -193,6 +193,7 @@ function Admin() {
   }
 
 
+  if (loading) {
     return (
       <main className="admin-page">
         <div className="admin-container">
