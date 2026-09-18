@@ -261,6 +261,58 @@ function Admin() {
 
         <section className="admin-settings-card">
 
+          <h2>Boutiques les plus actives</h2>
+
+          <p>
+            Classées par chiffre d'affaires généré, pour
+            repérer tes commerçants les plus actifs — ou
+            ceux qui ont besoin d'un coup de pouce.
+          </p>
+
+          {(!stats.classementBoutiques ||
+            stats.classementBoutiques.length === 0) && (
+            <p>Aucune boutique pour l'instant.</p>
+          )}
+
+          {stats.classementBoutiques &&
+            stats.classementBoutiques.length > 0 && (
+              <div className="admin-livraison-list">
+
+                {stats.classementBoutiques.map(
+                  function (boutique, index) {
+                    return (
+                      <div
+                        className="admin-livraison-row"
+                        key={boutique.shopId}
+                      >
+                        <span>
+                          {index + 1}. {boutique.shopName}
+                          {boutique.city
+                            ? " (" + boutique.city + ")"
+                            : ""}
+                        </span>
+                        <span>
+                          {boutique.revenue.toLocaleString(
+                            "fr-FR"
+                          )}{" "}
+                          F CFA
+                        </span>
+                        <span>
+                          {boutique.orders} commande
+                          {boutique.orders > 1 ? "s" : ""}
+                        </span>
+                      </div>
+                    );
+                  }
+                )}
+
+              </div>
+            )}
+
+        </section>
+
+        <section className="admin-settings-card">
+
           <h2>Taux de commission</h2>
 
           <p>

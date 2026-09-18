@@ -280,6 +280,56 @@ function CreateShop() {
 
         </section>
 
+        <section className="create-shop-benefits">
+
+          <div className="create-shop-benefit">
+            <span>🆓</span>
+            <div>
+              <strong>100% gratuit</strong>
+              <p>
+                Aucun frais d'inscription ni d'abonnement
+                mensuel pour ouvrir votre boutique.
+              </p>
+            </div>
+          </div>
+
+          <div className="create-shop-benefit">
+            <span>🔒</span>
+            <div>
+              <strong>Paiements sécurisés</strong>
+              <p>
+                Vos clients paient en ligne via PayTech
+                (Orange Money, Wave, carte bancaire) —
+                vous recevez votre argent en toute
+                sécurité.
+              </p>
+            </div>
+          </div>
+
+          <div className="create-shop-benefit">
+            <span>📍</span>
+            <div>
+              <strong>Des clients partout au Sénégal</strong>
+              <p>
+                Dakar, Thiès, Saint-Louis... touchez des
+                acheteurs bien au-delà de votre quartier.
+              </p>
+            </div>
+          </div>
+
+          <div className="create-shop-benefit">
+            <span>⚡</span>
+            <div>
+              <strong>En ligne en 5 minutes</strong>
+              <p>
+                Remplissez le formulaire ci-dessous et
+                votre boutique est visible immédiatement.
+              </p>
+            </div>
+          </div>
+
+        </section>
+
         <form
           className="create-shop-form"
           onSubmit={handleSubmit}

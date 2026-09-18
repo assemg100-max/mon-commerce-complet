@@ -2167,6 +2167,71 @@ app.get("/api/admin/stats", requireAdmin, async function (req, res) {
     0
   );
 
+  /*
+   * =========================================================
+   * CLASSEMENT DES BOUTIQUES
+   * =========================================================
+   *
+   * Pour chaque boutique, on additionne le chiffre d'affaires
+   * et le nombre de commandes qui la concernent (une commande
+   * peut contenir des produits de plusieurs boutiques, donc
+   * on regarde ligne par ligne dans chaque commande).
+   */
+  const statsParBoutique = {};
+
+  db.orders.forEach(function (order) {
+    const produitsParBoutique = {};
+
+    (order.products || []).forEach(function (product) {
+      const shopId = Number(product.shopId);
+
+      if (!shopId) {
+        return;
+      }
+
+      const prix = Number(product.price) || 0;
+      const quantite = Number(product.quantity) || 0;
+
+      produitsParBoutique[shopId] =
+        (produitsParBoutique[shopId] || 0) +
+        prix * quantite;
+    });
+
+    Object.keys(produitsParBoutique).forEach(function (
+      shopId
+    ) {
+      if (!statsParBoutique[shopId]) {
+        statsParBoutique[shopId] = {
+          revenue: 0,
+          orders: 0,
+        };
+      }
+
+      statsParBoutique[shopId].revenue +=
+        produitsParBoutique[shopId];
+      statsParBoutique[shopId].orders += 1;
+    });
+  });
+
+  const classementBoutiques = db.shops
+    .map(function (shop) {
+      const donnees = statsParBoutique[shop.id] || {
+        revenue: 0,
+        orders: 0,
+      };
+
+      return {
+        shopId: shop.id,
+        shopName: shop.name,
+        city: shop.city || "",
+        revenue: donnees.revenue,
+        orders: donnees.orders,
+      };
+    })
+    .sort(function (a, b) {
+      return b.revenue - a.revenue;
+    });
+
   res.json({
     totalOrders,
     totalRevenue,
@@ -2174,6 +2239,7 @@ app.get("/api/admin/stats", requireAdmin, async function (req, res) {
     totalShops: db.shops.length,
     totalProducts: db.products.length,
     totalUsers: db.users.length,
+    classementBoutiques,
     commissionRate:
       (db.settings && db.settings.commissionRate) || 0.1,
     orangeMoneyNumber:
