@@ -114,7 +114,60 @@ function handleLogout() {
           className="header-logo"
         >
           <span className="header-logo-icon">
-            🇸🇳
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <defs>
+                <clipPath id="panierForme">
+                  <path d="M12 10 L40 10 L35 32 L16 32 Z" />
+                </clipPath>
+              </defs>
+
+              {/* Panier rempli des 3 couleurs du drapeau */}
+              <g clipPath="url(#panierForme)">
+                <rect x="10" y="8" width="10" height="26" fill="#00853F" />
+                <rect x="20" y="8" width="10" height="26" fill="#FDEF42" />
+                <rect x="30" y="8" width="10" height="26" fill="#E31B23" />
+              </g>
+
+              {/* Étoile au centre, dans la bande jaune */}
+              <text
+                x="26"
+                y="24"
+                fontSize="9"
+                textAnchor="middle"
+                fill="#00853F"
+              >
+                ★
+              </text>
+
+              {/* Contour du panier */}
+              <path
+                d="M12 10 L40 10 L35 32 L16 32 Z"
+                fill="none"
+                stroke="#1a1a1a"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+
+              {/* Manche */}
+              <path
+                d="M4 6 H10 L12 10"
+                fill="none"
+                stroke="#1a1a1a"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              {/* Roues */}
+              <circle cx="20" cy="40" r="3" fill="#1a1a1a" />
+              <circle cx="32" cy="40" r="3" fill="#1a1a1a" />
+            </svg>
           </span>
 
           <span>
