@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { registerUser } from "../data/api";
+import {
+  telephoneEstValide,
+  formaterMessageErreurTelephone,
+} from "../utils/validation";
 
 import PageTitle from "../components/PageTitle";
 
@@ -35,8 +39,17 @@ function Register() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    setLoading(true);
     setError("");
+
+    if (
+      form.phone.trim() &&
+      !telephoneEstValide(form.phone)
+    ) {
+      setError(formaterMessageErreurTelephone());
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const newUser = await registerUser(form);

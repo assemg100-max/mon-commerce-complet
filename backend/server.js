@@ -13,6 +13,33 @@ import {
 
 /*
  * =========================================================
+ * VALIDATION DU NUMÉRO DE TÉLÉPHONE SÉNÉGALAIS
+ * =========================================================
+ *
+ * Même logique que côté frontend (utils/validation.js) :
+ * on retire l'indicatif (+221, 00221) et les espaces, puis
+ * on vérifie que ce qui reste est un numéro mobile
+ * sénégalais valide (9 chiffres commençant par 7).
+ *
+ * Vérifier aussi côté serveur est important : un client
+ * pourrait contourner la validation du navigateur (via
+ * l'outil "developer tools" ou un appel direct à l'API).
+ */
+function telephoneEstValide(valeur) {
+  if (!valeur) {
+    return false;
+  }
+
+  const chiffres = String(valeur)
+    .replace(/^\+?221/, "")
+    .replace(/^00221/, "")
+    .replace(/\D/g, "");
+
+  return /^7[0-9]{8}$/.test(chiffres);
+}
+
+/*
+ * =========================================================
  * SERVEUR "MON COMMERCE SÉNÉGAL"
  * =========================================================
  *
@@ -175,6 +202,13 @@ app.post("/api/auth/register", async function (req, res) {
   if (!name || !email || !password) {
     return res.status(400).json({
       error: "Nom, email et mot de passe sont obligatoires.",
+    });
+  }
+
+  if (phone && !telephoneEstValide(phone)) {
+    return res.status(400).json({
+      error:
+        "Le numéro de téléphone indiqué n'est pas un numéro sénégalais valide (ex : 77 123 45 67).",
     });
   }
 
@@ -606,6 +640,13 @@ app.post("/api/shops", requireAuth, async function (req, res) {
     return res.status(400).json({
       error:
         "Le nom, la ville et la catégorie sont obligatoires.",
+    });
+  }
+
+  if (!telephoneEstValide(phone)) {
+    return res.status(400).json({
+      error:
+        "Merci d'indiquer un numéro de téléphone sénégalais valide pour votre boutique (ex : 77 123 45 67).",
     });
   }
 
@@ -1317,6 +1358,13 @@ app.post("/api/orders", async function (req, res) {
     return res.status(400).json({
       error:
         "Les informations du client et les produits sont obligatoires.",
+    });
+  }
+
+  if (!telephoneEstValide(customer.phone)) {
+    return res.status(400).json({
+      error:
+        "Merci d'indiquer un numéro de téléphone sénégalais valide (ex : 77 123 45 67).",
     });
   }
 

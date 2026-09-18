@@ -324,7 +324,18 @@ function Product() {
 
       <div className="product-container">
 
-        <PageTitle title={product.name} />
+        <PageTitle
+          title={product.name}
+          description={
+            (product.description
+              ? product.description.slice(0, 120)
+              : product.name) +
+            " — À partir de " +
+            price.toLocaleString("fr-FR") +
+            " F CFA sur Mon Commerce Sénégal."
+          }
+        />
+
 
         <Link
           to={"/boutique/" + product.shopId}

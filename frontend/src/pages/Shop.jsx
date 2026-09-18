@@ -178,7 +178,16 @@ function Shop() {
       }}
     >
 
-      <PageTitle title={shop.name} />
+      <PageTitle
+        title={shop.name}
+        description={
+          (shop.description
+            ? shop.description.slice(0, 120)
+            : "Découvrez les produits de " + shop.name) +
+          (shop.city ? " à " + shop.city : "") +
+          " sur Mon Commerce Sénégal."
+        }
+      />
 
       <section className="shop-header">
 
