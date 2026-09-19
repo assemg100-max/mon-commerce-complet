@@ -1557,13 +1557,32 @@ app.post("/api/orders", async function (req, res) {
     });
   }
 
+  const allowedMethods = [
+    "cod",
+    "orange_money",
+    "wave",
+    "paytech",
+  ];
+
+  const method = allowedMethods.includes(paymentMethod)
+    ? paymentMethod
+    : "cod";
+
   /*
-   * Seul PayTech est proposé comme moyen de paiement :
-   * c'est PayTech qui confirme automatiquement le paiement
-   * via une notification IPN, traitée plus bas — pas besoin
-   * de référence saisie à la main ni d'autres méthodes.
+   * Pour "paytech", pas besoin d'une référence saisie à la
+   * main : c'est PayTech qui confirme automatiquement le
+   * paiement via une notification IPN, traitée plus bas.
    */
-  const method = "paytech";
+  if (
+    method !== "cod" &&
+    method !== "paytech" &&
+    (!paymentReference || !paymentReference.trim())
+  ) {
+    return res.status(400).json({
+      error:
+        "Merci d'indiquer la référence de votre transaction Mobile Money.",
+    });
+  }
 
   const db = await readDB();
 
@@ -1697,8 +1716,13 @@ app.post("/api/orders", async function (req, res) {
     platformFee,
     merchantPayout,
     paymentMethod: method,
-    paymentReference: "",
-    paymentStatus: "En attente de paiement en ligne",
+    paymentReference: paymentReference || "",
+    paymentStatus:
+      method === "cod"
+        ? "À encaisser à la livraison"
+        : method === "paytech"
+        ? "En attente de paiement en ligne"
+        : "À vérifier",
   };
 
   db.orders.push(newOrder);

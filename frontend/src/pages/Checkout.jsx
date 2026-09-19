@@ -10,6 +10,10 @@ import {
 } from "../data/api";
 
 import PageTitle from "../components/PageTitle";
+import {
+  telephoneEstValide,
+  formaterMessageErreurTelephone,
+} from "../utils/validation";
 
 import "./Checkout.css";
 
@@ -39,7 +43,9 @@ function Checkout() {
     city: "",
     address: "",
     notes: "",
-    paymentMethod: "paytech",
+    paymentMethod: "cod",
+    paymentReference: "",
+    siteWeb: "",
   });
 
   useEffect(() => {
@@ -108,6 +114,13 @@ function Checkout() {
       })
     ),
   ];
+
+  const singleShop =
+    shopIdsInCart.length === 1
+      ? getShopById(shopIdsInCart[0])
+      : null;
+
+  const canPayByMobileMoney = Boolean(singleShop);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -233,6 +246,41 @@ function Checkout() {
       return;
     }
 
+    if (!telephoneEstValide(form.phone)) {
+      alert(formaterMessageErreurTelephone());
+      return;
+    }
+
+    if (
+      form.paymentMethod !== "cod" &&
+      !canPayByMobileMoney
+    ) {
+      alert(
+        "Le paiement Mobile Money n'est disponible que pour une commande d'une seule boutique à la fois."
+      );
+      return;
+    }
+
+    if (
+      form.paymentMethod !== "cod" &&
+      form.paymentMethod !== "paytech" &&
+      !form.paymentReference.trim()
+    ) {
+      alert(
+        "Veuillez indiquer la référence de votre transaction Mobile Money."
+      );
+      return;
+    }
+
+    /*
+     * Anti-spam : champ invisible pour les humains, que
+     * seuls les robots remplissent automatiquement. Si
+     * rempli, on abandonne silencieusement la commande.
+     */
+    if (form.siteWeb) {
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -287,7 +335,8 @@ function Checkout() {
         total: totalAvecLivraison,
         merchandiseTotal: totalFinal,
         totalProducts,
-        paymentMethod: "paytech",
+        paymentMethod: form.paymentMethod,
+        paymentReference: form.paymentReference.trim(),
         couponCode: appliedCoupon
           ? appliedCoupon.code
           : "",
@@ -403,6 +452,22 @@ function Checkout() {
             onSubmit={handleSubmit}
           >
 
+            {/*
+              Champ piège anti-spam : invisible pour un
+              humain, mais souvent rempli automatiquement
+              par les robots. Ne jamais le rendre visible.
+            */}
+            <input
+              type="text"
+              name="siteWeb"
+              value={form.siteWeb}
+              onChange={handleChange}
+              autoComplete="off"
+              tabIndex="-1"
+              className="checkout-honeypot"
+              aria-hidden="true"
+            />
+
             <section className="checkout-card">
 
               <h2>
@@ -508,19 +573,26 @@ function Checkout() {
 
               <div className="payment-methods">
 
-                <label className="payment-method-option selected">
+                <label
+                  className={
+                    "payment-method-option" +
+                    (form.paymentMethod === "paytech"
+                      ? " selected"
+                      : "")
+                  }
+                >
                   <input
                     type="radio"
                     name="paymentMethod"
                     value="paytech"
-                    checked
-                    readOnly
+                    checked={form.paymentMethod === "paytech"}
+                    onChange={handleChange}
                   />
                   <span className="payment-method-icon">
                     💳
                   </span>
                   <span>
-                    <strong>Payer en ligne avec PayTech</strong>
+                    <strong>Payer en ligne maintenant</strong>
                     <small>
                       Orange Money, Wave, Free Money ou carte
                       bancaire — paiement sécurisé et
@@ -529,7 +601,181 @@ function Checkout() {
                   </span>
                 </label>
 
+                <label
+                  className={
+                    "payment-method-option" +
+                    (form.paymentMethod === "cod"
+                      ? " selected"
+                      : "")
+                  }
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cod"
+                    checked={form.paymentMethod === "cod"}
+                    onChange={handleChange}
+                  />
+                  <span className="payment-method-icon">
+                    💵
+                  </span>
+                  <span>
+                    <strong>Paiement à la livraison</strong>
+                    <small>
+                      Vous payez en espèces quand vous
+                      recevez votre commande.
+                    </small>
+                  </span>
+                </label>
+
+                <label
+                  className={
+                    "payment-method-option" +
+                    (!canPayByMobileMoney
+                      ? " disabled"
+                      : "") +
+                    (form.paymentMethod === "orange_money"
+                      ? " selected"
+                      : "")
+                  }
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="orange_money"
+                    disabled={!canPayByMobileMoney}
+                    checked={
+                      form.paymentMethod === "orange_money"
+                    }
+                    onChange={handleChange}
+                  />
+                  <span className="payment-method-icon">
+                    🟠
+                  </span>
+                  <span>
+                    <strong>Orange Money</strong>
+                    <small>
+                      {canPayByMobileMoney
+                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
+                        : "Disponible uniquement pour une commande d'une seule boutique."}
+                    </small>
+                  </span>
+                </label>
+
+                <label
+                  className={
+                    "payment-method-option" +
+                    (!canPayByMobileMoney
+                      ? " disabled"
+                      : "") +
+                    (form.paymentMethod === "wave"
+                      ? " selected"
+                      : "")
+                  }
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="wave"
+                    disabled={!canPayByMobileMoney}
+                    checked={form.paymentMethod === "wave"}
+                    onChange={handleChange}
+                  />
+                  <span className="payment-method-icon">
+                    🔵
+                  </span>
+                  <span>
+                    <strong>Wave</strong>
+                    <small>
+                      {canPayByMobileMoney
+                        ? "Envoyez le montant, puis indiquez la référence de la transaction."
+                        : "Disponible uniquement pour une commande d'une seule boutique."}
+                    </small>
+                  </span>
+                </label>
+
               </div>
+
+              {form.paymentMethod === "orange_money" && (
+                <div className="payment-instructions">
+
+                  <p>
+                    Envoyez{" "}
+                    <strong>
+                      {totalAvecLivraison.toLocaleString("fr-FR")}{" "}
+                      F CFA
+                    </strong>{" "}
+                    via Orange Money directement à{" "}
+                    <strong>
+                      {singleShop
+                        ? singleShop.name
+                        : "la boutique"}
+                    </strong>{" "}
+                    au numéro :
+                  </p>
+
+                  <strong className="payment-number">
+                    {(singleShop &&
+                      singleShop.orangeMoneyNumber) ||
+                      "Ce commerçant n'a pas encore configuré son numéro Orange Money"}
+                  </strong>
+
+                  <label htmlFor="paymentReference">
+                    Référence de la transaction *
+                  </label>
+
+                  <input
+                    id="paymentReference"
+                    name="paymentReference"
+                    type="text"
+                    value={form.paymentReference}
+                    onChange={handleChange}
+                    placeholder="Ex : OM240912.1234.A56789"
+                    required
+                  />
+
+                </div>
+              )}
+
+              {form.paymentMethod === "wave" && (
+                <div className="payment-instructions">
+
+                  <p>
+                    Envoyez{" "}
+                    <strong>
+                      {totalAvecLivraison.toLocaleString("fr-FR")}{" "}
+                      F CFA
+                    </strong>{" "}
+                    via Wave directement à{" "}
+                    <strong>
+                      {singleShop
+                        ? singleShop.name
+                        : "la boutique"}
+                    </strong>{" "}
+                    au numéro :
+                  </p>
+
+                  <strong className="payment-number">
+                    {(singleShop && singleShop.waveNumber) ||
+                      "Ce commerçant n'a pas encore configuré son numéro Wave"}
+                  </strong>
+
+                  <label htmlFor="paymentReference">
+                    Référence de la transaction *
+                  </label>
+
+                  <input
+                    id="paymentReference"
+                    name="paymentReference"
+                    type="text"
+                    value={form.paymentReference}
+                    onChange={handleChange}
+                    placeholder="Référence reçue par SMS"
+                    required
+                  />
+
+                </div>
+              )}
 
             </section>
 
@@ -542,6 +788,12 @@ function Checkout() {
                 ? "Envoi en cours..."
                 : "Confirmer la commande →"}
             </button>
+
+            <p className="checkout-secure-note">
+              🔒 Paiement sécurisé par PayTech — vos
+              informations bancaires ne sont jamais
+              stockées sur nos serveurs.
+            </p>
 
           </form>
 
