@@ -395,3 +395,32 @@
   font-size: 14px;
   margin-bottom: 10px;
 }
+
+.account-parrainage-code {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f0fdf4;
+  border: 1px dashed #00853f;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 12px 0;
+}
+
+.account-parrainage-code strong {
+  font-size: 20px;
+  letter-spacing: 1px;
+  color: #00853f;
+}
+
+.account-parrainage-code button {
+  margin-left: auto;
+  background: #00853f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}

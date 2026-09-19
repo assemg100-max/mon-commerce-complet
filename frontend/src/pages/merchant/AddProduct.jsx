@@ -17,6 +17,7 @@ function AddProduct() {
     stock: "",
     image: "",
     discountPercent: "",
+    discountEndsAt: "",
   });
 
   const [error, setError] = useState("");
@@ -295,6 +296,29 @@ function AddProduct() {
                   onChange={handleChange}
                   placeholder="Ex : 20 pour -20%"
                 />
+
+              </div>
+
+              <div className="form-group">
+
+                <label htmlFor="discountEndsAt">
+                  Fin de la promo (optionnel)
+                </label>
+
+                <input
+                  id="discountEndsAt"
+                  name="discountEndsAt"
+                  type="datetime-local"
+                  value={form.discountEndsAt}
+                  onChange={handleChange}
+                />
+
+                <small>
+                  Laissez vide pour une réduction sans
+                  limite de temps. Remplissez pour une
+                  vraie "vente flash" avec compte à rebours
+                  affiché aux clients.
+                </small>
 
               </div>
 

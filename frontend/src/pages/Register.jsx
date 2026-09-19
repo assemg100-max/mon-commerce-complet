@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 
 import { registerUser } from "../data/api";
 import {
@@ -13,6 +17,7 @@ import "./Register.css";
 
 function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({
     name: "",
@@ -20,6 +25,8 @@ function Register() {
     password: "",
     phone: "",
     role: "client",
+    codeParrainage:
+      searchParams.get("parrain") || "",
   });
 
   const [error, setError] = useState("");
@@ -216,6 +223,23 @@ function Register() {
                 </label>
 
               </div>
+
+            </div>
+
+            <div className="register-group">
+
+              <label htmlFor="codeParrainage">
+                Code de parrainage (optionnel)
+              </label>
+
+              <input
+                id="codeParrainage"
+                name="codeParrainage"
+                type="text"
+                value={form.codeParrainage}
+                onChange={handleChange}
+                placeholder="Ex : MCS4B2"
+              />
 
             </div>
 

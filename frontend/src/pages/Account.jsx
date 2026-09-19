@@ -6,6 +6,7 @@ import {
   updateProfile,
   changePassword,
   clearToken,
+  getParrainage,
 } from "../data/api";
 
 import PageTitle from "../components/PageTitle";
@@ -38,6 +39,8 @@ function Account() {
   const [savingPassword, setSavingPassword] =
     useState(false);
 
+  const [parrainage, setParrainage] = useState(null);
+
   useEffect(() => {
     const savedUser = localStorage.getItem(
       "mon-commerce-current-user"
@@ -64,6 +67,15 @@ function Account() {
       name: currentUser.name || "",
       phone: currentUser.phone || "",
     });
+
+    getParrainage()
+      .then(setParrainage)
+      .catch(function (error) {
+        console.error(
+          "Erreur lors du chargement du parrainage :",
+          error
+        );
+      });
 
     if (!currentUser.email) {
       setLoadingOrders(false);
@@ -229,6 +241,57 @@ function Account() {
           </div>
 
         </section>
+
+        {parrainage && (
+          <section className="account-info">
+
+            <h2>🎁 Parrainez vos amis</h2>
+
+            <p>
+              Partagez votre code avec vos amis. Dès leur
+              première commande, ils reçoivent 1000 F CFA
+              de réduction — et vous, vous aidez Mon
+              Commerce Sénégal à grandir !
+            </p>
+
+            <div className="account-parrainage-code">
+              <strong>{parrainage.referralCode}</strong>
+
+              <button
+                type="button"
+                onClick={function () {
+                  const lien =
+                    window.location.origin +
+                    "/inscription?parrain=" +
+                    parrainage.referralCode;
+
+                  navigator.clipboard
+                    .writeText(lien)
+                    .then(function () {
+                      alert(
+                        "Lien de parrainage copié !"
+                      );
+                    })
+                    .catch(function () {
+                      alert(lien);
+                    });
+                }}
+              >
+                Copier mon lien
+              </button>
+            </div>
+
+            <p>
+              Vous avez déjà parrainé{" "}
+              <strong>
+                {parrainage.totalFilleuls}
+              </strong>{" "}
+              personne
+              {parrainage.totalFilleuls > 1 ? "s" : ""}.
+            </p>
+
+          </section>
+        )}
 
         <section className="account-info">
 

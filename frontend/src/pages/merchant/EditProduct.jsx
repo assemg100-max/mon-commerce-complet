@@ -27,6 +27,7 @@ function EditProduct() {
     stock: "",
     image: "",
     discountPercent: "",
+    discountEndsAt: "",
   });
 
   useEffect(() => {
@@ -102,6 +103,11 @@ function EditProduct() {
           image: product.image || "",
           discountPercent:
             product.discountPercent || "",
+          discountEndsAt: product.discountEndsAt
+            ? new Date(product.discountEndsAt)
+                .toISOString()
+                .slice(0, 16)
+            : "",
         });
       })
       .catch(function (error) {
@@ -214,6 +220,7 @@ function EditProduct() {
       image: form.image.trim(),
 
       discountPercent: Number(form.discountPercent) || 0,
+      discountEndsAt: form.discountEndsAt || null,
     };
 
     setSubmitting(true);
@@ -360,6 +367,27 @@ function EditProduct() {
                   onChange={handleChange}
                   placeholder="Ex : 20 pour -20%"
                 />
+
+              </div>
+
+              <div className="form-group">
+
+                <label htmlFor="discountEndsAt">
+                  Fin de la promo (optionnel)
+                </label>
+
+                <input
+                  id="discountEndsAt"
+                  name="discountEndsAt"
+                  type="datetime-local"
+                  value={form.discountEndsAt}
+                  onChange={handleChange}
+                />
+
+                <small>
+                  Laissez vide pour une réduction sans
+                  limite de temps.
+                </small>
 
               </div>
 

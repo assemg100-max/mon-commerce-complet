@@ -210,6 +210,18 @@ export function getProducts(shopId) {
   );
 }
 
+export function getVentesFlash() {
+  return apiRequest("/products?flashSale=true").then(
+    function (data) {
+      return data.products;
+    }
+  );
+}
+
+export function getParrainage() {
+  return apiRequest("/parrainage");
+}
+
 export function getProductById(id) {
   return apiRequest("/products/" + id).then(
     function (data) {
@@ -239,6 +251,14 @@ export function updateProduct(id, updates) {
 export function deleteProduct(id) {
   return apiRequest("/products/" + id, {
     method: "DELETE",
+  });
+}
+
+
+export function importerProduitsCsv(shopId, produits) {
+  return apiRequest("/products/import", {
+    method: "POST",
+    body: JSON.stringify({ shopId, produits }),
   });
 }
 

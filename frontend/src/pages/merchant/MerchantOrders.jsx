@@ -348,6 +348,32 @@ return (
                   </p>
                 )}
 
+                {order.customer?.phone && (
+                  <a
+                    className="merchant-order-whatsapp"
+                    target="_blank"
+                    rel="noreferrer"
+                    href={
+                      "https://wa.me/221" +
+                      order.customer.phone
+                        .replace(/\D/g, "")
+                        .replace(/^221/, "") +
+                      "?text=" +
+                      encodeURIComponent(
+                        "Bonjour " +
+                          (order.customer?.name || "") +
+                          ", c'est " +
+                          "votre commerçant sur Mon Commerce Sénégal. " +
+                          "Je vous contacte au sujet de votre commande " +
+                          order.orderNumber +
+                          "."
+                      )
+                    }
+                  >
+                    💬 Contacter le client sur WhatsApp
+                  </a>
+                )}
+
               </div>
 
               <div className="merchant-order-products">

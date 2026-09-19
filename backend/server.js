@@ -196,8 +196,14 @@ app.get("/api/livraison-tarifs", async function (req, res) {
    ========================================================= */
 
 app.post("/api/auth/register", async function (req, res) {
-  const { name, email, password, phone, role } =
-    req.body;
+  const {
+    name,
+    email,
+    password,
+    phone,
+    role,
+    codeParrainage,
+  } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({
@@ -229,14 +235,45 @@ app.post("/api/auth/register", async function (req, res) {
 
   const passwordHash = bcrypt.hashSync(password, 10);
 
+  /*
+   * =========================================================
+   * PARRAINAGE
+   * =========================================================
+   *
+   * Si un code de parrainage valide est fourni, on retrouve
+   * le parrain et on garde son id. Le nouveau compte recevra
+   * automatiquement une réduction sur sa première commande
+   * (voir la création de commande plus bas).
+   */
+  let parrainId = null;
+
+  if (codeParrainage && codeParrainage.trim()) {
+    const parrain = db.users.find(function (user) {
+      return (
+        user.referralCode &&
+        user.referralCode.toUpperCase() ===
+          codeParrainage.trim().toUpperCase()
+      );
+    });
+
+    if (parrain) {
+      parrainId = parrain.id;
+    }
+  }
+
+  const nextUserId = getNextId(db.users);
+
   const newUser = {
-    id: getNextId(db.users),
+    id: nextUserId,
     name,
     email,
     password: passwordHash,
     phone: phone || "",
     role: role === "merchant" ? "merchant" : "client",
     shopId: null,
+    referralCode:
+      "MCS" + (nextUserId + 1000).toString(36).toUpperCase(),
+    parrainId,
   };
 
   db.users.push(newUser);
@@ -248,6 +285,38 @@ app.post("/api/auth/register", async function (req, res) {
 
   res.status(201).json({ user: safeUser, token });
 });
+
+
+/*
+ * Renvoie le code de parrainage de l'utilisateur connecté
+ * et le nombre de personnes qu'il a déjà parrainées.
+ */
+app.get(
+  "/api/parrainage",
+  requireAuth,
+  async function (req, res) {
+    const db = await readDB();
+
+    const user = db.users.find(function (item) {
+      return Number(item.id) === Number(req.user.id);
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: "Utilisateur introuvable." });
+    }
+
+    const filleuls = db.users.filter(function (item) {
+      return Number(item.parrainId) === Number(user.id);
+    });
+
+    res.json({
+      referralCode: user.referralCode || "",
+      totalFilleuls: filleuls.length,
+    });
+  }
+);
 
 
 app.post("/api/auth/login", async function (req, res) {
@@ -882,6 +951,23 @@ app.get("/api/products", async function (req, res) {
     });
   }
 
+  /*
+   * VENTES FLASH : ne renvoie que les produits qui ont
+   * une réduction ET une date de fin non dépassée.
+   */
+  if (req.query.flashSale === "true") {
+    const maintenant = Date.now();
+
+    products = products.filter(function (product) {
+      return (
+        Number(product.discountPercent) > 0 &&
+        product.discountEndsAt &&
+        new Date(product.discountEndsAt).getTime() >
+          maintenant
+      );
+    });
+  }
+
   res.json({ products });
 });
 
@@ -936,6 +1022,7 @@ app.post("/api/products", requireAuth, async function (req, res) {
     stock,
     image,
     discountPercent,
+    discountEndsAt,
   } = req.body;
 
   if (!name || !price || !shopId) {
@@ -980,6 +1067,13 @@ app.post("/api/products", requireAuth, async function (req, res) {
     image: image || "",
     discountPercent:
       Math.min(90, Math.max(0, Number(discountPercent) || 0)),
+    /*
+     * VENTE FLASH : si une date de fin est fournie, la
+     * réduction n'est affichée aux clients que jusqu'à
+     * cette date/heure (voir la fonction utilitaire
+     * "promoEstActive" utilisée à l'affichage).
+     */
+    discountEndsAt: discountEndsAt || null,
   };
 
   db.products.push(newProduct);
@@ -987,6 +1081,101 @@ app.post("/api/products", requireAuth, async function (req, res) {
 
   res.status(201).json({ product: newProduct });
 });
+
+
+/*
+ * =========================================================
+ * IMPORT DE PRODUITS EN MASSE (CSV)
+ * =========================================================
+ *
+ * Le fichier CSV est lu et transformé en tableau côté
+ * navigateur (voir utils/csv.js), et c'est ce tableau déjà
+ * prêt que cette route reçoit. On revalide quand même
+ * chaque ligne ici, car on ne fait jamais confiance à ce
+ * qui vient du client.
+ */
+app.post(
+  "/api/products/import",
+  requireAuth,
+  async function (req, res) {
+    const { shopId, produits } = req.body;
+
+    if (!shopId || !Array.isArray(produits)) {
+      return res.status(400).json({
+        error: "shopId et une liste de produits sont obligatoires.",
+      });
+    }
+
+    const db = await readDB();
+
+    const shop = db.shops.find(function (item) {
+      return Number(item.id) === Number(shopId);
+    });
+
+    if (!shop) {
+      return res
+        .status(404)
+        .json({ error: "Boutique introuvable." });
+    }
+
+    const isOwner =
+      shop.ownerId &&
+      Number(shop.ownerId) === Number(req.user.id);
+
+    if (!isOwner && req.user.role !== "admin") {
+      return res.status(403).json({
+        error:
+          "Vous ne pouvez importer des produits que dans votre propre boutique.",
+      });
+    }
+
+    const erreurs = [];
+    const produitsCrees = [];
+
+    produits.forEach(function (ligne, index) {
+      const numeroLigne = index + 2; // +2 : ligne 1 = en-têtes
+
+      const nom = (ligne.nom || "").trim();
+      const prix = Number(ligne.prix);
+
+      if (!nom || !prix || prix <= 0) {
+        erreurs.push(
+          "Ligne " +
+            numeroLigne +
+            " : nom et prix valides obligatoires."
+        );
+        return;
+      }
+
+      const nouveauProduit = {
+        id: getNextId(db.products),
+        name: nom,
+        price: prix,
+        shopId: Number(shopId),
+        categoryId: null,
+        category: (ligne.categorie || "").trim(),
+        description: (ligne.description || "").trim(),
+        stock: Number(ligne.stock) || 0,
+        image: (ligne.image || "").trim(),
+        discountPercent: Math.min(
+          90,
+          Math.max(0, Number(ligne.reduction) || 0)
+        ),
+        discountEndsAt: null,
+      };
+
+      db.products.push(nouveauProduit);
+      produitsCrees.push(nouveauProduit);
+    });
+
+    await writeDB(db);
+
+    res.status(201).json({
+      importes: produitsCrees.length,
+      erreurs,
+    });
+  }
+);
 
 
 function getProductOwnerCheck(req, res, db) {
@@ -1420,10 +1609,48 @@ app.post("/api/orders", async function (req, res) {
 
   const orderNumber = "MC-" + Date.now();
 
+  /*
+   * =========================================================
+   * RÉDUCTION DE PARRAINAGE
+   * =========================================================
+   *
+   * Si le client a été parrainé (compte créé avec un code de
+   * parrainage) ET que c'est sa toute première commande, on
+   * lui applique automatiquement 1000 F CFA de réduction.
+   */
+  const REDUCTION_PARRAINAGE = 1000;
+  let referralDiscount = 0;
+
+  if (customer.email) {
+    const compteClient = db.users.find(function (user) {
+      return (
+        user.email.toLowerCase() ===
+        String(customer.email).toLowerCase()
+      );
+    });
+
+    if (compteClient && compteClient.parrainId) {
+      const dejaCommande = db.orders.some(function (
+        order
+      ) {
+        return (
+          order.customer.email &&
+          order.customer.email.toLowerCase() ===
+            String(customer.email).toLowerCase()
+        );
+      });
+
+      if (!dejaCommande) {
+        referralDiscount = REDUCTION_PARRAINAGE;
+      }
+    }
+  }
+
   const commissionRate =
     (db.settings && db.settings.commissionRate) || 0.1;
 
-  const orderTotal = Number(total) || 0;
+  const orderTotal =
+    (Number(total) || 0) - referralDiscount;
 
   /*
    * La commission de la plateforme ne porte que sur la
@@ -1446,6 +1673,7 @@ app.post("/api/orders", async function (req, res) {
     total: orderTotal,
     couponCode: couponCode || "",
     discount: Number(discount) || 0,
+    referralDiscount,
     deliveryFee: Number(deliveryFee) || 0,
     deliveryEstimate: deliveryEstimate || "",
     /*

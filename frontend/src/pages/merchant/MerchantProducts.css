@@ -234,3 +234,23 @@ grid-template-columns: 1fr;
 flex-direction: column;
 }
 }
+.merchant-import-csv-label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.merchant-import-resultat {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.merchant-import-resultat ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  color: #b91c1c;
+}

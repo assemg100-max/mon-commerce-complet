@@ -1,0 +1,130 @@
+.flash-sales {
+  background: #fff7ed;
+  padding: 40px 0;
+}
+
+.flash-sales-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.flash-sales-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.flash-sales-badge {
+  display: inline-block;
+  background: #e31b23;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.flash-sales-header h2 {
+  margin: 0 0 6px;
+}
+
+.flash-sales-header p {
+  margin: 0;
+  color: #5a6472;
+}
+
+.flash-sales-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.flash-sale-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.flash-sale-image {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: #f1f1f1;
+}
+
+.flash-sale-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.flash-sale-percent {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #e31b23;
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.flash-sale-content {
+  padding: 14px;
+}
+
+.flash-sale-content h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.flash-sale-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.flash-sale-price-old {
+  text-decoration: line-through;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.flash-sale-price-new {
+  color: #e31b23;
+  font-size: 17px;
+}
+
+.flash-sale-countdown {
+  font-size: 13px;
+  font-weight: 600;
+  color: #00853f;
+  margin-bottom: 10px;
+}
+
+.flash-sale-button {
+  display: block;
+  text-align: center;
+  background: #00853f;
+  color: white;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .flash-sales-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .flash-sales-grid {
+    grid-template-columns: 1fr;
+  }
+}

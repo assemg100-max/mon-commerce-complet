@@ -5,7 +5,10 @@ import {
   getProducts,
   deleteProduct as deleteStoredProduct,
   getShopByOwner,
+  importerProduitsCsv,
 } from "../../data/api";
+
+import { lireCsv, genererModeleCsv } from "../../utils/csv";
 
 import "./MerchantProducts.css";
 
@@ -13,7 +16,12 @@ function MerchantProducts() {
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
+  const [shop, setShop] = useState(null);
   const [products, setProducts] = useState([]);
+  const [importation, setImportation] = useState({
+    enCours: false,
+    resultat: null,
+  });
 
   useEffect(() => {
     const savedUser = localStorage.getItem(
@@ -41,6 +49,7 @@ function MerchantProducts() {
           return;
         }
 
+        setShop(shop);
         loadProducts(shop.id);
       });
     } catch (error) {
@@ -58,6 +67,68 @@ function MerchantProducts() {
           error
         );
       });
+  }
+
+  function telechargerModele() {
+    const contenu = genererModeleCsv();
+    const blob = new Blob([contenu], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+
+    const lien = document.createElement("a");
+    lien.href = url;
+    lien.download = "modele-produits.csv";
+    lien.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function handleFichierCsv(event) {
+    const fichier = event.target.files[0];
+
+    if (!fichier || !shop) {
+      return;
+    }
+
+    setImportation({ enCours: true, resultat: null });
+
+    const lecteur = new FileReader();
+
+    lecteur.onload = function () {
+      const { donnees } = lireCsv(String(lecteur.result));
+
+      if (donnees.length === 0) {
+        setImportation({
+          enCours: false,
+          resultat: {
+            erreurs: [
+              "Le fichier est vide ou mal formaté.",
+            ],
+            importes: 0,
+          },
+        });
+        return;
+      }
+
+      importerProduitsCsv(shop.id, donnees)
+        .then(function (resultat) {
+          setImportation({
+            enCours: false,
+            resultat,
+          });
+          loadProducts(shop.id);
+        })
+        .catch(function (error) {
+          setImportation({
+            enCours: false,
+            resultat: { erreurs: [error.message], importes: 0 },
+          });
+        });
+    };
+
+    lecteur.readAsText(fichier, "UTF-8");
+    event.target.value = "";
   }
 
   function deleteProduct(productId) {
@@ -139,9 +210,61 @@ function MerchantProducts() {
               + Ajouter un produit
             </Link>
 
+            <button
+              type="button"
+              className="merchant-add-product-button"
+              onClick={telechargerModele}
+            >
+              📄 Modèle CSV
+            </button>
+
+            <label className="merchant-add-product-button merchant-import-csv-label">
+              {importation.enCours
+                ? "Import en cours..."
+                : "📥 Importer un CSV"}
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFichierCsv}
+                disabled={importation.enCours}
+                style={{ display: "none" }}
+              />
+            </label>
+
           </div>
 
         </div>
+
+        {importation.resultat && (
+          <div className="merchant-import-resultat">
+
+            <p>
+              ✅ {importation.resultat.importes} produit
+              {importation.resultat.importes > 1
+                ? "s"
+                : ""}{" "}
+              importé
+              {importation.resultat.importes > 1
+                ? "s"
+                : ""}{" "}
+              avec succès.
+            </p>
+
+            {importation.resultat.erreurs &&
+              importation.resultat.erreurs.length > 0 && (
+                <ul>
+                  {importation.resultat.erreurs.map(
+                    function (erreur, index) {
+                      return (
+                        <li key={index}>{erreur}</li>
+                      );
+                    }
+                  )}
+                </ul>
+              )}
+
+          </div>
+        )}
 
         <div className="merchant-products-count">
 
