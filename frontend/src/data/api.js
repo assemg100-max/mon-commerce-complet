@@ -195,6 +195,12 @@ export function updateShop(id, updates) {
   });
 }
 
+export function deleteShop(id) {
+  return apiRequest("/shops/" + id, {
+    method: "DELETE",
+  });
+}
+
 
 /* =========================================================
    PRODUITS

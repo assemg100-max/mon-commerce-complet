@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   getShopById,
   updateShop,
+  deleteShop,
 } from "../../data/api";
 import { fileToResizedBase64 } from "../../data/imageUpload";
 
@@ -53,6 +54,8 @@ function MerchantProfile() {
   });
   const [savingLivraison, setSavingLivraison] =
     useState(false);
+
+  const [deletingShop, setDeletingShop] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem(
@@ -239,6 +242,80 @@ function MerchantProfile() {
       })
       .finally(function () {
         setSavingLivraison(false);
+      });
+  }
+
+  function handleDeleteShop() {
+    if (!shop) {
+      return;
+    }
+
+    const premiereConfirmation = window.confirm(
+      "Es-tu sûr de vouloir supprimer définitivement ta boutique « " +
+        shop.name +
+        " » ? Tous ses produits seront aussi supprimés."
+    );
+
+    if (!premiereConfirmation) {
+      return;
+    }
+
+    const texteAttendu = shop.name.trim().toUpperCase();
+
+    const saisie = window.prompt(
+      'Pour confirmer, tape exactement le nom de ta boutique : "' +
+        shop.name +
+        '"'
+    );
+
+    if (
+      !saisie ||
+      saisie.trim().toUpperCase() !== texteAttendu
+    ) {
+      alert(
+        "Le nom saisi ne correspond pas — suppression annulée."
+      );
+      return;
+    }
+
+    setDeletingShop(true);
+
+    deleteShop(shop.id)
+      .then(function () {
+        /*
+         * On met à jour le compte en mémoire pour que le
+         * reste du site (menu, tableau de bord) sache
+         * immédiatement que la boutique n'existe plus.
+         */
+        const savedUser = localStorage.getItem(
+          "mon-commerce-current-user"
+        );
+
+        if (savedUser) {
+          try {
+            const parsedUser = JSON.parse(savedUser);
+            parsedUser.shopId = null;
+
+            localStorage.setItem(
+              "mon-commerce-current-user",
+              JSON.stringify(parsedUser)
+            );
+
+            window.dispatchEvent(new Event("userUpdated"));
+          } catch (error) {
+            console.error(
+              "Erreur mise à jour utilisateur :",
+              error
+            );
+          }
+        }
+
+        alert("Ta boutique a bien été supprimée.");
+        navigate("/");
+      })
+      .catch(function (error) {
+        alert(error.message);
+        setDeletingShop(false);
       });
   }
 
@@ -878,6 +955,31 @@ function MerchantProfile() {
             </button>
 
           </form>
+
+        </section>
+
+        <section className="merchant-profile-section merchant-danger-zone">
+
+          <h2>⚠️ Zone dangereuse</h2>
+
+          <p>
+            Supprimer ta boutique effacera aussi tous ses
+            produits. Tes commandes passées resteront dans
+            l'historique, mais ta boutique ne sera plus
+            visible sur le site. Cette action est
+            définitive.
+          </p>
+
+          <button
+            type="button"
+            className="merchant-delete-shop-button"
+            disabled={deletingShop}
+            onClick={handleDeleteShop}
+          >
+            {deletingShop
+              ? "Suppression en cours..."
+              : "Supprimer définitivement ma boutique"}
+          </button>
 
         </section>
 

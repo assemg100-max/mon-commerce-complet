@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getAdminStats, updateAdminSettings } from "../data/api";
+import {
+  getAdminStats,
+  updateAdminSettings,
+  deleteShop,
+} from "../data/api";
 
 import "./Admin.css";
 
@@ -83,6 +87,26 @@ function Admin() {
       })
       .finally(function () {
         setLoading(false);
+      });
+  }
+
+  function handleDeleteShop(shopId, shopName) {
+    const confirmation = window.confirm(
+      "Supprimer définitivement la boutique « " +
+        shopName +
+        " » et tous ses produits ? Cette action est irréversible."
+    );
+
+    if (!confirmation) {
+      return;
+    }
+
+    deleteShop(shopId)
+      .then(function () {
+        loadStats();
+      })
+      .catch(function (error) {
+        alert(error.message);
       });
   }
 
@@ -301,6 +325,18 @@ function Admin() {
                           {boutique.orders} commande
                           {boutique.orders > 1 ? "s" : ""}
                         </span>
+                        <button
+                          type="button"
+                          className="admin-delete-shop-button"
+                          onClick={function () {
+                            handleDeleteShop(
+                              boutique.shopId,
+                              boutique.shopName
+                            );
+                          }}
+                        >
+                          Supprimer
+                        </button>
                       </div>
                     );
                   }

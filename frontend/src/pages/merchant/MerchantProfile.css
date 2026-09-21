@@ -458,3 +458,31 @@
     gap: 4px;
   }
 }
+
+.merchant-danger-zone {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.merchant-danger-zone h2 {
+  color: #b91c1c;
+}
+
+.merchant-delete-shop-button {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.merchant-delete-shop-button:hover {
+  background: #b91c1c;
+}
+
+.merchant-delete-shop-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

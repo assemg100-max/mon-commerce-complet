@@ -838,8 +838,32 @@ app.delete("/api/shops/:id", requireAuth, async function (req, res) {
     return;
   }
 
+  const shopId = Number(req.params.id);
+
   db.shops = db.shops.filter(function (item) {
-    return Number(item.id) !== Number(req.params.id);
+    return Number(item.id) !== shopId;
+  });
+
+  /*
+   * On retire aussi tous les produits de cette boutique,
+   * sinon ils resteraient "orphelins" dans la base et
+   * pourraient encore apparaître dans des recherches.
+   */
+  db.products = db.products.filter(function (product) {
+    return Number(product.shopId) !== shopId;
+  });
+
+  /*
+   * On réinitialise le shopId du compte propriétaire, pour
+   * qu'il puisse créer une nouvelle boutique par la suite
+   * sans que le tableau de bord reste bloqué sur l'ancienne.
+   */
+  db.users = db.users.map(function (user) {
+    if (Number(user.shopId) === shopId) {
+      return { ...user, shopId: null };
+    }
+
+    return user;
   });
 
   await writeDB(db);

@@ -210,3 +210,18 @@
   cursor: pointer;
 }
 
+
+.admin-delete-shop-button {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-delete-shop-button:hover {
+  background: #fecaca;
+}
