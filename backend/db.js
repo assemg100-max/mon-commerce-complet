@@ -370,22 +370,43 @@ export async function writeDB(db) {
  * Génère le prochain ID disponible pour
  * une collection donnée (users, shops, products...).
  */
-export function getNextId(collection) {
-  if (collection.length === 0) {
-    return 1;
+export function getNextId(db, collectionName) {
+  /*
+   * =========================================================
+   * COMPTEUR PERSISTANT (ne réutilise jamais un identifiant)
+   * =========================================================
+   *
+   * Avant, l'id suivant était calculé comme "le plus grand
+   * id existant + 1". Problème : après une suppression, un
+   * nouvel élément pouvait recevoir un id déjà utilisé par
+   * le passé, et hériter par erreur d'anciennes données
+   * liées à cet id (ex : une nouvelle boutique qui affiche
+   * les commandes d'une ancienne boutique supprimée).
+   *
+   * On garde donc un compteur qui ne recule jamais, stocké
+   * dans db.counters, même si des éléments sont supprimés.
+   */
+  if (!db.counters) {
+    db.counters = {};
   }
 
-  const ids = collection
-    .map(function (item) {
-      return Number(item.id);
-    })
-    .filter(function (id) {
-      return !Number.isNaN(id);
-    });
+  const collection = db[collectionName] || [];
 
-  if (ids.length === 0) {
-    return 1;
-  }
+  const maxExistant = collection.reduce(function (
+    max,
+    item
+  ) {
+    const id = Number(item.id);
+    return !Number.isNaN(id) && id > max ? id : max;
+  },
+  0);
 
-  return Math.max(...ids) + 1;
+  const compteurActuel = db.counters[collectionName] || 0;
+
+  const prochainId =
+    Math.max(compteurActuel, maxExistant) + 1;
+
+  db.counters[collectionName] = prochainId;
+
+  return prochainId;
 }

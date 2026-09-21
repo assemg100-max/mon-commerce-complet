@@ -261,7 +261,7 @@ app.post("/api/auth/register", async function (req, res) {
     }
   }
 
-  const nextUserId = getNextId(db.users);
+  const nextUserId = getNextId(db, "users");
 
   const newUser = {
     id: nextUserId,
@@ -730,7 +730,7 @@ app.post("/api/shops", requireAuth, async function (req, res) {
   const ownerId = req.user.id;
 
   const newShop = {
-    id: getNextId(db.shops),
+    id: getNextId(db, "shops"),
     name,
     city,
     category,
@@ -1080,7 +1080,7 @@ app.post("/api/products", requireAuth, async function (req, res) {
   }
 
   const newProduct = {
-    id: getNextId(db.products),
+    id: getNextId(db, "products"),
     name,
     price: Number(price),
     shopId: Number(shopId),
@@ -1172,7 +1172,7 @@ app.post(
       }
 
       const nouveauProduit = {
-        id: getNextId(db.products),
+        id: getNextId(db, "products"),
         name: nom,
         price: prix,
         shopId: Number(shopId),
@@ -1353,7 +1353,7 @@ app.post(
     }
 
     const newCoupon = {
-      id: getNextId(db.coupons),
+      id: getNextId(db, "coupons"),
       code: codeNormalise,
       type,
       value: Number(value),
@@ -2230,7 +2230,7 @@ app.post("/api/reviews", requireAuth, async function (req, res) {
   }
 
   const newReview = {
-    id: getNextId(db.reviews),
+    id: getNextId(db, "reviews"),
     productId: Number(productId),
     customerEmail: customerEmail || "",
     customerName: customerName || "Client",
@@ -2311,7 +2311,7 @@ app.post("/api/favorites", requireAuth, async function (req, res) {
   }
 
   db.favorites.push({
-    id: getNextId(db.favorites),
+    id: getNextId(db, "favorites"),
     customerEmail,
     productId: Number(productId),
   });
@@ -2515,6 +2515,75 @@ app.get("/api/admin/stats", requireAdmin, async function (req, res) {
       },
   });
 });
+
+
+/*
+ * =========================================================
+ * NETTOYAGE DES BOUTIQUES SANS PROPRIÉTAIRE
+ * =========================================================
+ *
+ * Repère les boutiques dont le "ownerId" est vide OU ne
+ * correspond à aucun compte existant (boutiques de test
+ * créées à la main, ou dont le compte a été supprimé).
+ */
+function trouverBoutiquesOrphelines(db) {
+  return db.shops.filter(function (shop) {
+    if (!shop.ownerId) {
+      return true;
+    }
+
+    const proprietaireExiste = db.users.some(function (
+      user
+    ) {
+      return Number(user.id) === Number(shop.ownerId);
+    });
+
+    return !proprietaireExiste;
+  });
+}
+
+app.get(
+  "/api/admin/boutiques-orphelines",
+  requireAdmin,
+  async function (req, res) {
+    const db = await readDB();
+
+    const orphelines = trouverBoutiquesOrphelines(db);
+
+    res.json({
+      boutiques: orphelines.map(function (shop) {
+        return { id: shop.id, name: shop.name };
+      }),
+    });
+  }
+);
+
+app.delete(
+  "/api/admin/boutiques-orphelines",
+  requireAdmin,
+  async function (req, res) {
+    const db = await readDB();
+
+    const orphelines = trouverBoutiquesOrphelines(db);
+    const idsASupprimer = orphelines.map(function (shop) {
+      return Number(shop.id);
+    });
+
+    db.shops = db.shops.filter(function (shop) {
+      return !idsASupprimer.includes(Number(shop.id));
+    });
+
+    db.products = db.products.filter(function (product) {
+      return !idsASupprimer.includes(
+        Number(product.shopId)
+      );
+    });
+
+    await writeDB(db);
+
+    res.json({ supprimees: idsASupprimer.length });
+  }
+);
 
 
 app.put("/api/admin/settings", requireAdmin, async function (req, res) {
