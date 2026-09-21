@@ -116,3 +116,64 @@ section {
   font-weight: 700;
 }
 
+
+/* =========================================================
+   UNIFORMISATION DES IMAGES PRODUITS
+   =========================================================
+   Certaines boutiques ajoutent des photos de tailles très
+   différentes. Cette règle force toutes les images de
+   cartes produit/boutique à garder le même format (carré),
+   quelle que soit la taille d'origine de la photo, pour un
+   rendu plus propre et professionnel dans les listes.
+*/
+.product-image img,
+.product-card img,
+.category-product-card img,
+.shops-matching-product-card img,
+.shop-card img,
+.shop-list-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #f3f1ea;
+}
+
+/* =========================================================
+   BOUTONS D'UPLOAD D'IMAGE (appareil photo / galerie)
+========================================================= */
+
+.image-upload-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.image-upload-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #1a2333;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.image-upload-button:hover {
+  background: #e5e7eb;
+}
+
+@media (max-width: 480px) {
+  .image-upload-buttons {
+    flex-direction: column;
+  }
+
+  .image-upload-button {
+    justify-content: center;
+  }
+}

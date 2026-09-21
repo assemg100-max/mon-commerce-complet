@@ -546,17 +546,44 @@ function MerchantProfile() {
 
             <div className="merchant-profile-group">
 
-              <label htmlFor="logoFile">
+              <label>
                 Logo de la boutique
               </label>
 
-              <input
-                id="logoFile"
-                name="logoFile"
-                type="file"
-                accept="image/*"
-                onChange={handleLogoUpload}
-              />
+              <div className="image-upload-buttons">
+
+                <label
+                  htmlFor="logoFileCamera"
+                  className="image-upload-button"
+                >
+                  📷 Prendre une photo
+                </label>
+                <input
+                  id="logoFileCamera"
+                  name="logoFileCamera"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleLogoUpload}
+                  style={{ display: "none" }}
+                />
+
+                <label
+                  htmlFor="logoFileGalerie"
+                  className="image-upload-button"
+                >
+                  🖼️ Choisir depuis la galerie
+                </label>
+                <input
+                  id="logoFileGalerie"
+                  name="logoFileGalerie"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  style={{ display: "none" }}
+                />
+
+              </div>
 
               {uploadingLogo && (
                 <small>Traitement de l'image...</small>

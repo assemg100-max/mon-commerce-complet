@@ -453,17 +453,44 @@ function EditProduct() {
 
             <div className="form-group">
 
-              <label htmlFor="imageFile">
+              <label>
                 Photo du produit
               </label>
 
-              <input
-                id="imageFile"
-                name="imageFile"
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-              />
+              <div className="image-upload-buttons">
+
+                <label
+                  htmlFor="imageFileCamera"
+                  className="image-upload-button"
+                >
+                  📷 Prendre une photo
+                </label>
+                <input
+                  id="imageFileCamera"
+                  name="imageFileCamera"
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImageUpload}
+                  style={{ display: "none" }}
+                />
+
+                <label
+                  htmlFor="imageFileGalerie"
+                  className="image-upload-button"
+                >
+                  🖼️ Choisir depuis la galerie
+                </label>
+                <input
+                  id="imageFileGalerie"
+                  name="imageFileGalerie"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  style={{ display: "none" }}
+                />
+
+              </div>
 
               {uploadingImage && (
                 <small>Traitement de l'image...</small>
