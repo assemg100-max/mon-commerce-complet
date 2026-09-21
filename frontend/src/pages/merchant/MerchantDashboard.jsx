@@ -12,6 +12,7 @@ function MerchantDashboard() {
   const [shop, setShop] = useState(null);
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadCurrentUser();
@@ -68,6 +69,8 @@ function MerchantDashboard() {
   }, [navigate]);
 
   function loadCurrentUser() {
+    setLoading(true);
+
     const savedUser = localStorage.getItem(
       "mon-commerce-current-user"
     );
@@ -155,6 +158,9 @@ function MerchantDashboard() {
           "Erreur lors du chargement de la boutique :",
           error
         );
+      })
+      .finally(function () {
+        setLoading(false);
       });
   }
 
@@ -207,6 +213,27 @@ function MerchantDashboard() {
       <main className="merchant-dashboard-page">
         <div className="merchant-dashboard-container">
           <p>Chargement...</p>
+        </div>
+      </main>
+    );
+  }
+
+  /*
+   * =========================================================
+   * CHARGEMENT EN COURS
+   * =========================================================
+   *
+   * Tant qu'on n'a pas fini de vérifier si le commerçant a
+   * déjà une boutique, on affiche un simple message d'attente
+   * — sinon on affiche brièvement "Aucune boutique" par
+   * erreur avant que les vraies données n'arrivent.
+   */
+
+  if (loading) {
+    return (
+      <main className="merchant-dashboard-page">
+        <div className="merchant-dashboard-container">
+          <p>Chargement de votre espace commerçant...</p>
         </div>
       </main>
     );

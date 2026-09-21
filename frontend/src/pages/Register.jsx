@@ -100,6 +100,16 @@ function Register() {
           {error && (
             <div className="register-error">
               ⚠️ {error}
+              {error
+                .toLowerCase()
+                .includes("existe déjà") && (
+                <>
+                  {" "}
+                  <Link to="/connexion">
+                    Se connecter →
+                  </Link>
+                </>
+              )}
             </div>
           )}
 
