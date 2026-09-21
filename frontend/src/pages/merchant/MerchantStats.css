@@ -101,3 +101,7 @@
   background: #f8f9fb;
   border-radius: 8px;
 }
+
+.merchant-stats-container {
+  width: 100%;
+}

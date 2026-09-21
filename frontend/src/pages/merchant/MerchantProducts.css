@@ -15,6 +15,34 @@ justify-content: space-between;
 align-items: center;
 gap: 30px;
 margin-bottom: 35px;
+flex-wrap: wrap;
+}
+
+.merchant-products-header-actions {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+align-items: center;
+}
+
+.merchant-add-product-button {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+padding: 12px 18px;
+border-radius: 10px;
+background: #16a34a;
+color: white;
+text-decoration: none;
+font-weight: 600;
+font-size: 14px;
+border: none;
+cursor: pointer;
+white-space: nowrap;
+}
+
+.merchant-add-product-button:hover {
+background: #128a3e;
 }
 
 .merchant-products-label {
@@ -222,6 +250,17 @@ flex-direction: column;
 align-items: flex-start;
 }
 
+.merchant-products-header-actions {
+width: 100%;
+}
+
+.merchant-products-header-actions a,
+.merchant-products-header-actions button,
+.merchant-products-header-actions label {
+flex: 1 1 auto;
+text-align: center;
+}
+
 .merchant-products-header h1 {
 font-size: 30px;
 }
@@ -253,4 +292,36 @@ flex-direction: column;
   margin: 8px 0 0;
   padding-left: 20px;
   color: #b91c1c;
+}
+
+.merchant-edit-product-button {
+  flex: 1;
+  text-align: center;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.merchant-edit-product-button:hover {
+  background: #dbeafe;
+}
+
+.merchant-delete-product-button {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: none;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.merchant-delete-product-button:hover {
+  background: #fee2e2;
 }

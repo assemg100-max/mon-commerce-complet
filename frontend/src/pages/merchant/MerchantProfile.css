@@ -134,21 +134,21 @@
   gap: 22px;
 }
 
-.merchant-profile-form-group {
+.merchant-profile-group {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.merchant-profile-form-group label {
+.merchant-profile-group label {
   color: #374151;
   font-size: 14px;
   font-weight: 700;
 }
 
-.merchant-profile-form-group input,
-.merchant-profile-form-group select,
-.merchant-profile-form-group textarea {
+.merchant-profile-group input,
+.merchant-profile-group select,
+.merchant-profile-group textarea {
   width: 100%;
   box-sizing: border-box;
   padding: 13px 14px;
@@ -162,19 +162,19 @@
   transition: 0.2s ease;
 }
 
-.merchant-profile-form-group input:focus,
-.merchant-profile-form-group select:focus,
-.merchant-profile-form-group textarea:focus {
+.merchant-profile-group input:focus,
+.merchant-profile-group select:focus,
+.merchant-profile-group textarea:focus {
   border-color: #e8890c;
   box-shadow: 0 0 0 3px rgba(0, 143, 57, 0.1);
 }
 
-.merchant-profile-form-group textarea {
+.merchant-profile-group textarea {
   min-height: 130px;
   resize: vertical;
 }
 
-.merchant-profile-form-group small {
+.merchant-profile-group small {
   color: var(--ink-soft, #4a5468);
   font-size: 12px;
 }
@@ -183,7 +183,7 @@
    DEUX COLONNES
 ========================================================= */
 
-.merchant-profile-form-row {
+.merchant-profile-row {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
@@ -310,7 +310,7 @@
     flex-direction: column;
   }
 
-  .merchant-profile-form-row {
+  .merchant-profile-row {
     grid-template-columns: 1fr;
   }
 
@@ -485,4 +485,67 @@
 .merchant-delete-shop-button:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+.merchant-profile-preview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  border: 1px solid var(--border, #e8ddc9);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.merchant-profile-preview-logo {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #6b7280;
+  overflow: hidden;
+}
+
+.merchant-profile-preview-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.merchant-profile-preview span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #16a34a;
+}
+
+.merchant-profile-preview h2 {
+  margin: 4px 0;
+  font-size: 20px;
+}
+
+.merchant-profile-preview p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.merchant-profile-description {
+  margin: 0 0 20px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .merchant-profile-preview {
+    flex-direction: column;
+    text-align: center;
+  }
 }

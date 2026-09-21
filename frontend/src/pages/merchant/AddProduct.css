@@ -9,7 +9,7 @@
   margin: 0 auto;
 }
 
-.add-product-top {
+.add-product-header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -17,25 +17,25 @@
   margin-bottom: 30px;
 }
 
-.page-label {
+.add-product-label {
   color: #0f766e;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 1.4px;
 }
 
-.add-product-top h1 {
+.add-product-header h1 {
   margin: 8px 0;
   color: #17202a;
   font-size: 34px;
 }
 
-.add-product-top p {
+.add-product-header p {
   margin: 0;
   color: #667085;
 }
 
-.back-button {
+.add-product-back-button {
   padding: 11px 15px;
   border: 1px solid #d0d5dd;
   border-radius: 10px;
@@ -45,7 +45,7 @@
   text-decoration: none;
 }
 
-.back-button:hover {
+.add-product-back-button:hover {
   background: var(--sand, #fbf4e8);
 }
 
@@ -57,8 +57,8 @@
   box-shadow: 0 10px 30px rgba(16, 24, 40, 0.05);
 }
 
-.form-success,
-.form-error {
+.add-product-success,
+.add-product-error {
   margin-bottom: 22px;
   padding: 13px 15px;
   border-radius: 10px;
@@ -66,17 +66,17 @@
   font-weight: 600;
 }
 
-.form-success {
+.add-product-success {
   background: #ecfdf3;
   color: #027a48;
 }
 
-.form-error {
+.add-product-error {
   background: #fef3f2;
   color: #b42318;
 }
 
-.product-form {
+.add-product-form {
   display: flex;
   flex-direction: column;
   gap: 22px;
@@ -127,7 +127,7 @@
   box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
-.add-product-button {
+.save-product-button {
   margin-top: 5px;
   padding: 14px 20px;
   border: none;
@@ -139,12 +139,12 @@
   cursor: pointer;
 }
 
-.add-product-button:hover {
+.save-product-button:hover {
   background: #115e59;
 }
 
 @media (max-width: 650px) {
-  .add-product-top {
+  .add-product-header {
     align-items: flex-start;
     flex-direction: column;
   }
@@ -157,7 +157,7 @@
     padding: 24px 20px;
   }
 
-  .add-product-top h1 {
+  .add-product-header h1 {
     font-size: 28px;
   }
 }
@@ -166,4 +166,37 @@
   max-width: 220px;
   border-radius: 10px;
   border: 1px solid var(--border, #e8ddc9);
+}
+
+.add-product-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.add-product-actions .save-product-button,
+.add-product-actions .cancel-product-button {
+  flex: 1;
+  min-width: 140px;
+}
+
+.cancel-product-button {
+  text-align: center;
+  padding: 14px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  color: #1a2333;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cancel-product-button:hover {
+  background: #e5e7eb;
+}
+
+@media (max-width: 600px) {
+  .add-product-actions {
+    flex-direction: column;
+  }
 }

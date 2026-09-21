@@ -308,3 +308,150 @@
   margin-bottom: 8px;
 }
 
+
+/* =========================================================
+   CLASSES AJOUTÉES (corrigent un manque de style)
+========================================================= */
+
+.merchant-back-button {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #1a2333;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.merchant-back-button:hover {
+  background: #e5e7eb;
+}
+
+.merchant-orders-shop-button {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: #16a34a;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.merchant-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.merchant-orders-count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: #4a5468;
+  margin-bottom: 10px;
+}
+
+.merchant-orders-count strong {
+  font-size: 20px;
+  color: #1a2333;
+}
+
+.merchant-order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.merchant-order-header h2 {
+  margin: 2px 0 0;
+  font-size: 18px;
+}
+
+.merchant-order-customer {
+  background: #f8f9fb;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.merchant-order-customer h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.merchant-order-customer p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.merchant-order-whatsapp {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  background: #25d366;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.merchant-order-whatsapp:hover {
+  background: #1fb855;
+}
+
+.merchant-order-product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 10px;
+}
+
+.merchant-order-product:last-child {
+  border-bottom: none;
+}
+
+.merchant-order-product span {
+  display: block;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.merchant-order-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  margin-top: 10px;
+  border-top: 1px solid #eee;
+  font-size: 16px;
+}
+
+.merchant-order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .merchant-order-header {
+    flex-direction: column;
+  }
+
+  .merchant-order-actions {
+    flex-direction: column;
+  }
+
+  .merchant-order-actions button,
+  .merchant-order-actions a {
+    width: 100%;
+  }
+}

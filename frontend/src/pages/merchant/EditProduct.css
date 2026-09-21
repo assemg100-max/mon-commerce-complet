@@ -28,11 +28,13 @@
   margin-top: 30px;
 }
 
-.edit-product-group {
+.edit-product-group,
+.form-group {
   margin-bottom: 20px;
 }
 
-.edit-product-group label {
+.edit-product-group label,
+.form-group label {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
@@ -40,7 +42,10 @@
 
 .edit-product-group input,
 .edit-product-group textarea,
-.edit-product-group select {
+.edit-product-group select,
+.form-group input,
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
@@ -49,7 +54,8 @@
   box-sizing: border-box;
 }
 
-.edit-product-group textarea {
+.edit-product-group textarea,
+.form-group textarea {
   resize: vertical;
 }
 
@@ -59,7 +65,7 @@
   margin-top: 25px;
 }
 
-.edit-product-save {
+.save-edit-button {
   border: none;
   padding: 12px 20px;
   border-radius: 8px;
@@ -69,11 +75,11 @@
   font-weight: 600;
 }
 
-.edit-product-save:hover {
+.save-edit-button:hover {
   opacity: 0.9;
 }
 
-.edit-product-cancel {
+.cancel-edit-button {
   padding: 12px 20px;
   border-radius: 8px;
   background: #eee;
@@ -115,5 +121,63 @@
 @media (max-width: 600px) {
   .edit-product-page {
     padding: 24px 12px;
+  }
+}
+
+.edit-product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.edit-product-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #16a34a;
+  margin-bottom: 6px;
+}
+
+.edit-product-back-button {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #1a2333;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.edit-product-back-button:hover {
+  background: #e5e7eb;
+}
+
+@media (max-width: 600px) {
+  .edit-product-header {
+    flex-direction: column;
+  }
+}
+
+.form-group small {
+  display: block;
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
