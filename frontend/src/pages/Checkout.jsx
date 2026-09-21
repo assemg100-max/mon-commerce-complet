@@ -261,17 +261,6 @@ function Checkout() {
       return;
     }
 
-    if (
-      form.paymentMethod !== "cod" &&
-      form.paymentMethod !== "paytech" &&
-      !form.paymentReference.trim()
-    ) {
-      alert(
-        "Veuillez indiquer la référence de votre transaction Mobile Money."
-      );
-      return;
-    }
-
     /*
      * Anti-spam : champ invisible pour les humains, que
      * seuls les robots remplissent automatiquement. Si
@@ -721,7 +710,8 @@ function Checkout() {
                   </strong>
 
                   <label htmlFor="paymentReference">
-                    Référence de la transaction *
+                    Référence de la transaction
+                    (optionnel)
                   </label>
 
                   <input
@@ -730,8 +720,7 @@ function Checkout() {
                     type="text"
                     value={form.paymentReference}
                     onChange={handleChange}
-                    placeholder="Ex : OM240912.1234.A56789"
-                    required
+                    placeholder="Ex : OM240912.1234.A56789 (si vous l'avez)"
                   />
 
                 </div>
@@ -740,39 +729,85 @@ function Checkout() {
               {form.paymentMethod === "wave" && (
                 <div className="payment-instructions">
 
-                  <p>
-                    Envoyez{" "}
-                    <strong>
-                      {totalAvecLivraison.toLocaleString("fr-FR")}{" "}
-                      F CFA
-                    </strong>{" "}
-                    via Wave directement à{" "}
-                    <strong>
-                      {singleShop
-                        ? singleShop.name
-                        : "la boutique"}
-                    </strong>{" "}
-                    au numéro :
-                  </p>
+                  {singleShop && singleShop.waveLink ? (
+                    <>
+                      <p>
+                        Clique sur le bouton ci-dessous pour
+                        payer directement sur Wave, avec le
+                        montant déjà rempli.
+                      </p>
 
-                  <strong className="payment-number">
-                    {(singleShop && singleShop.waveNumber) ||
-                      "Ce commerçant n'a pas encore configuré son numéro Wave"}
-                  </strong>
+                      <a
+                        className="payment-wave-button"
+                        target="_blank"
+                        rel="noreferrer"
+                        href={
+                          singleShop.waveLink.replace(
+                            /\/?$/,
+                            "/"
+                          ) +
+                          "?amount=" +
+                          Math.round(totalAvecLivraison) +
+                          "&currency=XOF"
+                        }
+                      >
+                        🔵 Payer avec Wave →
+                      </a>
 
-                  <label htmlFor="paymentReference">
-                    Référence de la transaction *
-                  </label>
+                      <label htmlFor="paymentReference">
+                        Référence de la transaction
+                        (optionnel)
+                      </label>
 
-                  <input
-                    id="paymentReference"
-                    name="paymentReference"
-                    type="text"
-                    value={form.paymentReference}
-                    onChange={handleChange}
-                    placeholder="Référence reçue par SMS"
-                    required
-                  />
+                      <input
+                        id="paymentReference"
+                        name="paymentReference"
+                        type="text"
+                        value={form.paymentReference}
+                        onChange={handleChange}
+                        placeholder="Référence reçue par SMS (si vous l'avez)"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <p>
+                        Envoyez{" "}
+                        <strong>
+                          {totalAvecLivraison.toLocaleString(
+                            "fr-FR"
+                          )}{" "}
+                          F CFA
+                        </strong>{" "}
+                        via Wave directement à{" "}
+                        <strong>
+                          {singleShop
+                            ? singleShop.name
+                            : "la boutique"}
+                        </strong>{" "}
+                        au numéro :
+                      </p>
+
+                      <strong className="payment-number">
+                        {(singleShop &&
+                          singleShop.waveNumber) ||
+                          "Ce commerçant n'a pas encore configuré son numéro Wave"}
+                      </strong>
+
+                      <label htmlFor="paymentReference">
+                        Référence de la transaction
+                        (optionnel)
+                      </label>
+
+                      <input
+                        id="paymentReference"
+                        name="paymentReference"
+                        type="text"
+                        value={form.paymentReference}
+                        onChange={handleChange}
+                        placeholder="Référence reçue par SMS (si vous l'avez)"
+                      />
+                    </>
+                  )}
 
                 </div>
               )}

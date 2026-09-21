@@ -368,9 +368,33 @@ align-self: flex-end;
   border-color: var(--border, #e8ddc9);
 }
 
-.payment-instructions-note {
-  margin: 4px 0 0;
+.checkout-secure-note {
+  text-align: center;
   font-size: 13px;
-  color: var(--ink-soft, #4a5468);
-  line-height: 1.5;
+  color: #4a5468;
+  margin-top: 10px;
+}
+
+.checkout-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.payment-wave-button {
+  display: block;
+  text-align: center;
+  background: #1a56db;
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 12px 0;
+}
+
+.payment-wave-button:hover {
+  background: #1544ac;
 }

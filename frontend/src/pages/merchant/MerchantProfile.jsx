@@ -27,6 +27,7 @@ function MerchantProfile() {
     themeColor: "#e8890c",
     orangeMoneyNumber: "",
     waveNumber: "",
+    waveLink: "",
   });
 
   /*
@@ -106,6 +107,7 @@ function MerchantProfile() {
           orangeMoneyNumber:
             currentShop.orangeMoneyNumber || "",
           waveNumber: currentShop.waveNumber || "",
+          waveLink: currentShop.waveLink || "",
         });
 
         setVilles(currentShop.livraison || []);
@@ -284,6 +286,7 @@ function MerchantProfile() {
       orangeMoneyNumber: form.orangeMoneyNumber.trim(),
 
       waveNumber: form.waveNumber.trim(),
+      waveLink: form.waveLink.trim(),
 
       description:
         form.description.trim() ||
@@ -557,6 +560,31 @@ function MerchantProfile() {
                 Si tu renseignes ces numéros, tes clients
                 pourront te payer directement par Mobile
                 Money lors de leur commande.
+              </small>
+
+            </div>
+
+            <div className="merchant-profile-group">
+
+              <label htmlFor="waveLink">
+                Lien de paiement Wave (facultatif, avancé)
+              </label>
+
+              <input
+                id="waveLink"
+                name="waveLink"
+                type="text"
+                value={form.waveLink}
+                onChange={handleChange}
+                placeholder="Ex : https://pay.wave.com/m/M_sn_XXXXXXXX/c/sn/"
+              />
+
+              <small>
+                Si tu as créé un lien de paiement "montant
+                libre" dans l'app Wave, colle-le ici : tes
+                clients seront redirigés directement vers
+                Wave avec le montant déjà rempli, au lieu
+                de devoir taper ton numéro à la main.
               </small>
 
             </div>

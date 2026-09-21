@@ -1568,22 +1568,6 @@ app.post("/api/orders", async function (req, res) {
     ? paymentMethod
     : "cod";
 
-  /*
-   * Pour "paytech", pas besoin d'une référence saisie à la
-   * main : c'est PayTech qui confirme automatiquement le
-   * paiement via une notification IPN, traitée plus bas.
-   */
-  if (
-    method !== "cod" &&
-    method !== "paytech" &&
-    (!paymentReference || !paymentReference.trim())
-  ) {
-    return res.status(400).json({
-      error:
-        "Merci d'indiquer la référence de votre transaction Mobile Money.",
-    });
-  }
-
   const db = await readDB();
 
   /*
