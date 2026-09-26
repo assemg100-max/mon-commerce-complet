@@ -53,6 +53,40 @@ const app = express();
 
 const PORT = process.env.PORT || 4000;
 
+// Le site étant généralement derrière un proxy (Render, Nginx, etc.),
+// Express utilise X-Forwarded-For pour retrouver l'IP publique du visiteur.
+app.set(
+  "trust proxy",
+  process.env.TRUST_PROXY === "false" ? false : true
+);
+
+/* =========================================================
+   INFORMATIONS DE CONNEXION — TRANSPARENTES ET LIMITÉES
+   =========================================================
+
+   Ce journal reste en mémoire et ne conserve que les 200 dernières requêtes.
+   La route publique /api/connexion-info affiche clairement l'IP au visiteur.
+   La route /api/admin/connexions est réservée à l'administrateur.
+*/
+const recentConnections = [];
+const MAX_CONNECTION_LOGS = 200;
+
+function getRequesterIp(req) {
+  return req.ip || req.socket.remoteAddress || "inconnue";
+}
+
+function recordConnection(req) {
+  recentConnections.unshift({
+    ip: getRequesterIp(req),
+    timestamp: new Date().toISOString(),
+    method: req.method,
+    path: req.path,
+  });
+  if (recentConnections.length > MAX_CONNECTION_LOGS) {
+    recentConnections.length = MAX_CONNECTION_LOGS;
+  }
+}
+
 /*
  * =========================================================
  * SÉCURITÉ — CLÉ SECRÈTE POUR SIGNER LES JETONS (JWT)
@@ -142,7 +176,9 @@ app.use(express.json({ limit: "10mb" }));
  * requête reçue, utile pour comprendre ce qu'il se passe.
  */
 app.use(function (req, res, next) {
-  console.log(req.method + " " + req.url);
+  const ip = getRequesterIp(req);
+  recordConnection(req);
+  console.log("[connexion " + ip + "] " + req.method + " " + req.url);
   next();
 });
 
@@ -155,6 +191,20 @@ app.get("/api", async function (req, res) {
   res.json({
     message:
       "Bienvenue sur l'API de Mon Commerce Sénégal 🇸🇳",
+  });
+});
+
+/* =========================================================
+   INFORMATIONS DE CONNEXION DU VISITEUR
+   ========================================================= */
+app.get("/api/connexion-info", function (req, res) {
+  res.json({
+    ip: getRequesterIp(req),
+    message:
+      "Cette adresse IP est affichée de manière transparente par le site.",
+    collectedFor:
+      "Informations de connexion et diagnostic du fonctionnement du serveur.",
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -2405,6 +2455,17 @@ app.post("/api/admin/promote", requireAuth, async function (req, res) {
   const token = createToken(updatedUser);
 
   res.json({ user: safeUser, token });
+});
+
+
+// Journal court et non persistant des visiteurs récents, visible uniquement
+// par un administrateur connecté. Les IP sont affichées pour le diagnostic,
+// sans ajouter d'informations personnelles supplémentaires.
+app.get("/api/admin/connexions", requireAdmin, function (req, res) {
+  res.json({
+    retention: "200 dernières requêtes en mémoire uniquement",
+    connexions: recentConnections,
+  });
 });
 
 
